@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>user management  </p>
+    <h3>user management</h3>
     <!-- <p>authFilter = {{authFilter}}</p> -->
     <table border="1">
       <thead>
@@ -32,7 +32,7 @@
       </tbody>
     </table>
 
-    <button v-on:click="showAddTable">+</button>
+    <button v-on:click="addTableVisible = !addTableVisible">+</button>
     <div v-show="addTableVisible">
       <input type="text" v-model="newUser.name" placeholder="username">
       <input type="text" v-model="newUser.pwd" placeholder="password">
@@ -89,7 +89,7 @@ export default {
   },
   computed: {
     filteredUsers: function () {
-      console.log(this.authFilter)
+      // console.log(this.authFilter)
       if (this.authFilter === '0') {
         return this.users
       }
@@ -101,9 +101,14 @@ export default {
   methods: {
     getUserList () {
       axios
-        .get('/api/userList')
+        .get('/api/users')
         .then(response => {
-          this.users = response.data
+          if (response.data.status === 'success') {
+            this.users = response.data.userList
+          } else {
+            window.alert('user list fail, refreshing this page...')
+            window.location.reload()
+          }
         })
         .catch(error => {
           console.log(error.response.status)
@@ -142,12 +147,9 @@ export default {
         })
       }
     },
-    showAddTable () {
-      this.addTableVisible = !this.addTableVisible
-    },
     addUser () {
       axios({
-        url: '/api/userList',
+        url: '/api/users',
         method: 'post',
         data: {
           // pwd: this.newUser.pwd,
@@ -169,7 +171,7 @@ export default {
       })
       this.newUser.name = ''
       this.newUser.auth = ''
-
+      this.addTableVisible = false
       this.getUserList()
     },
     removeUser (id) {

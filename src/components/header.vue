@@ -1,8 +1,8 @@
 <template>
   <div>
-    <p>
+    <h1>
       header:{{username}}
-    </p>
+    </h1>
   </div>
 </template>
 
@@ -10,7 +10,7 @@
 export default {
   props: {
     name: String,
-    auth: Number
+    auth: String
   },
   data () {
     return {

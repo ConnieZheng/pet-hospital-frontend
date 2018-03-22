@@ -27,10 +27,9 @@ export default {
     },
     submit () {
       axios
-        // .post('/api/login', {name: this.name, pwd: this.pwd})
         .get('/api/login')
         .then(response => {
-          if (response.data.success === true) {
+          if (response.data.status === 'success') {
             this.setCookie('name', response.data.name)
             this.setCookie('auth', response.data.auth)
             this.$router.push({
@@ -43,6 +42,29 @@ export default {
         .catch(error => {
           console.log(error.response.status) // 504（json-server关闭时）
         })
+
+      // axios({
+      //   url: '/api/user/login',
+      //   method: 'post',
+      //   data: {
+      //     userName: this.name,
+      //     pwd: this.pwd
+      //   }
+      // })
+      //   .then(response => {
+      //     if (response.data.status === 'success') {
+      //       this.setCookie('name', response.data.userName)
+      //       this.setCookie('auth', response.data.auth)
+      //       this.$router.push({
+      //         name: 'User'
+      //       })
+      //     } else { // json-server返回的data中没有success参数，或者success参数不为true
+      //       this.msg = '用户名或密码错误'
+      //     }
+      //   })
+      //   .catch(error => {
+      //     console.log(error.response.status) // 504（json-server关闭时）
+      //   })
     }
   }
 }

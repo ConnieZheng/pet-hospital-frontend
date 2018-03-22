@@ -22,7 +22,7 @@ export default {
   },
   created () {
     this.name = this.getCookie('name')
-    this.auth = parseInt(this.getCookie('auth'))
+    this.auth = this.getCookie('auth')
   },
   methods: {
     getCookie (key) {
