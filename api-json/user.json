@@ -1,0 +1,41 @@
+{
+  "login": {
+    "success": true,
+    "id": 1,
+    "name": "connie",
+    "userpic": "http://www.baidu.com",
+    "auth": "2"
+  },
+  "userList": [
+    {
+      "name": "id1-auth1",
+      "auth": "1",
+      "id": 1
+    },
+    {
+      "id": 2,
+      "name": "id2-auth1",
+      "auth": "1"
+    },
+    {
+      "id": 3,
+      "name": "id3-auth2",
+      "auth": "2"
+    },
+    {
+      "id": 4,
+      "name": "id4-auth3",
+      "auth": "3"
+    },
+    {
+      "id": 5,
+      "name": "id5-auth3",
+      "auth": "3"
+    },
+    {
+      "id": 6,
+      "name": "id6-auth",
+      "auth": "2"
+    }
+  ]
+}
