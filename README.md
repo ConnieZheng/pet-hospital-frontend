@@ -2,6 +2,18 @@
 
 > A pet hospital learning management project
 
+1. Login 1.0
+2. Header 0.1
+3. Sidebar 0.1
+4. User management 1.0
+
+*2.0 = ready for test*
+
+*1.0 = functionally work*
+
+*0.1 = router work*
+
+# Default readme
 ## Build Setup
 
 ``` bash

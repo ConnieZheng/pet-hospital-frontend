@@ -46,13 +46,13 @@ function apiAxios (method, url, params, success) {
   })
     .then(function (res) {
       if (success) {
-        success(res.data)
+        success(res.data) // 返回的是res.data而不是res
       }
     })
     .catch(function (err) {
       let res = err.response
       if (err) {
-        window.alert('api error, HTTP CODE: ' + res.status)
+        window.alert('api error, HTTP CODE: ' + res.status) // 504（json-server关闭时）
       }
     })
 }

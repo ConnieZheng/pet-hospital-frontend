@@ -2,15 +2,14 @@
   <div>
     <!-- start: Content -->
     <input type="text" v-model="name" placeholder="username">
-    <input type="password" v-model="pwd" placeholder="password">
-    <button v-on:click="submit">提交</button>
+    <input type="password" v-model="pwd" placeholder="password" v-on:keyup.enter="submit">
+    <button v-on:click="submit">登录</button>
     <p>{{msg}}</p>
     <!-- end:Content -->
   </div>
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   data () {
     return {
@@ -26,45 +25,31 @@ export default {
       document.cookie = key + '=' + escape(value) + ';max-age=' + seconds
     },
     submit () {
-      axios
-        .get('/api/login')
-        .then(response => {
-          if (response.data.status === 'success') {
-            this.setCookie('name', response.data.name)
-            this.setCookie('auth', response.data.auth)
+      // 检验输入信息
+      if (this.name === '' || this.pwd === '') {
+        this.msg = '请输入用户名和密码后再登录'
+        return
+      }
+
+      this.$api.post(
+        '/user/login',
+        { // userName, pwd
+          userName: this.name,
+          pwd: this.pwd
+        },
+        response => { // status, id, userName, auth, pictureUrl
+          if (response.status === 'success') {
+            this.setCookie('name', response.userName)
+            this.setCookie('auth', response.auth)
+            this.setCookie('picUrl', response.pictureUrl)
             this.$router.push({
               name: 'User'
             })
-          } else { // json-server返回的data中没有success参数，或者success参数不为true
+          } else {
             this.msg = '用户名或密码错误'
           }
-        })
-        .catch(error => {
-          console.log(error.response.status) // 504（json-server关闭时）
-        })
-
-      // axios({
-      //   url: '/api/user/login',
-      //   method: 'post',
-      //   data: {
-      //     userName: this.name,
-      //     pwd: this.pwd
-      //   }
-      // })
-      //   .then(response => {
-      //     if (response.data.status === 'success') {
-      //       this.setCookie('name', response.data.userName)
-      //       this.setCookie('auth', response.data.auth)
-      //       this.$router.push({
-      //         name: 'User'
-      //       })
-      //     } else { // json-server返回的data中没有success参数，或者success参数不为true
-      //       this.msg = '用户名或密码错误'
-      //     }
-      //   })
-      //   .catch(error => {
-      //     console.log(error.response.status) // 504（json-server关闭时）
-      //   })
+        }
+      )
     }
   }
 }

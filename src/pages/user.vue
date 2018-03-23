@@ -21,8 +21,8 @@
       <tbody>
         <tr v-for="user in filteredUsers" v-bind:key="user.id">
           <td>{{user.id}}</td>
-          <td>{{user.name}}</td>
-          <td>{{user.auth}}</td>
+          <td>{{user.userName}}</td>
+          <td>{{showAuth(user.auth)}}</td>
           <td>
             <!-- <button v-bind:disabled="getOperationsFilter('resetPwd',user.auth)" v-on:click="resetPwd(user.id)">重置密码</button> -->
             <button v-bind:disabled="getOperationsFilter('modifyAuth',user.auth)" v-on:click="showModifyTable(user.id)">修改权限</button>
@@ -52,7 +52,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   data () {
     return {
@@ -89,30 +88,32 @@ export default {
   },
   computed: {
     filteredUsers: function () {
-      // console.log(this.authFilter)
+      // console.log(typeof this.authFilter)
+      // console.log('this.authFilter' + this.authFilter)
       if (this.authFilter === '0') {
         return this.users
       }
       return this.users.filter(function (user) {
+        // console.log(typeof user.auth)
+        // console.log('user.auth' + user.auth)
         return user.auth.indexOf(this.authFilter) !== -1
       }.bind(this))
     }
   },
   methods: {
     getUserList () {
-      axios
-        .get('/api/users')
-        .then(response => {
-          if (response.data.status === 'success') {
-            this.users = response.data.userList
+      this.$api.post(
+        '/user/all',
+        null,
+        response => { // status, userList[id, userName, auth]
+          if (response.status === 'success') {
+            this.users = response.userList
           } else {
-            window.alert('user list fail, refreshing this page...')
-            window.location.reload()
+            window.alert('用户列表获取失败，刷新中...')
+            window.location.reload() // 刷新本页面，https://www.zhihu.com/question/49863095
           }
-        })
-        .catch(error => {
-          console.log(error.response.status)
-        })
+        }
+      )
     },
     getCookie (key) {
       var arr
@@ -122,9 +123,9 @@ export default {
       else return null
     },
     getOperationsFilter (operationName, userAuth) {
-      // console.log('auth=' + this.auth + 'ua=' + userAuth)
+      // console.log('auth=' + this.auth + ' ua=' + userAuth + 'operationName=' + operationName)
       if (this.auth === '3') {
-        return false // disabled = false, 也就是button可见
+        return false // disabled = false, 也就是button可点击
       } else if (this.auth === '2' && userAuth === '1' && operationName !== 'modifyAuth') {
         return false
       } else if (this.auth === '2') {
@@ -141,52 +142,56 @@ export default {
       } else if (auth === '2') { // normal admin
         return this.options.slice(1, 2)
       } else { // normal user
-        console.log('Not admin user, back to login page')
+        // console.log('user.vue - getUserAuthOptions fail')
         this.$router.push({
           name: 'Login'
         })
       }
     },
     addUser () {
-      axios({
-        url: '/api/users',
-        method: 'post',
-        data: {
-          // pwd: this.newUser.pwd,
-          id: 6, // this.newUser.id,
-          name: this.newUser.name,
+      this.$api.post(
+        '/user/add',
+        { // userName, pwd, auth
+          userName: this.newUser.name,
+          pwd: this.newUser.pwd,
           auth: this.newUser.auth
+        },
+        response => { // status, id, userName, auth, pictureUrl
+          if (response.status === 'success') {
+            this.users.push({
+              id: response.id,
+              name: response.userName,
+              auth: response.auth
+            })
+          } else {
+            window.alert('增加用户失败')
+          }
         }
-        // transformRequest: [function (data) {
-        //   // Do whatever you want to transform the data
-        //   let ret = ''
-        //   for (let it in data) {
-        //     ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
-        //   }
-        //   return ret
-        // }],
-        // headers: {
-        //   'Content-Type': 'application/x-www-form-urlencoded'
-        // }
-      })
+      )
+
       this.newUser.name = ''
       this.newUser.auth = ''
       this.addTableVisible = false
-      this.getUserList()
+      // this.getUserList()
     },
     removeUser (id) {
-      console.log(id + 'removeUser\t')
-      axios({
-        url: '/api/userList/' + id,
-        method: 'delete'
-        // data: {
-        //   id: id
-        // }
-      })
-      this.getUserList()
+      this.$api.post(
+        '/user/delete',
+        { // id
+          id: id
+        },
+        response => { // status
+          if (response.status === 'success') {
+            this.getUserList() // TODO
+          } else {
+            window.alert('删除用户失败')
+            console.log(response)
+          }
+        }
+      )
     },
     resetPwd (id) {
-      console.log(id + 'resetPwd\t')
+      console.log(id + 'resetPwd\t') // TODO
     },
     showModifyTable (id) {
       this.modifyAuthTableVisible = !this.modifyAuthTableVisible
@@ -195,15 +200,27 @@ export default {
       }
     },
     modifyAuth () {
-      axios({
-        url: '/api/userList/' + this.operatingUser.id,
-        method: 'put',
-        data: {
-          name: 'id1-auth1', //
+      this.$api.post(
+        '/user/auth',
+        { // id, auth
+          id: this.operatingUser.id,
           auth: this.operatingUser.auth
+        },
+        response => { // status
+          if (response.status === 'success') {
+            this.getUserList() // TODO
+          } else {
+            window.alert('更新用户权限失败')
+            console.log(response)
+          }
         }
-      })
+      )
       this.getUserList()
+    },
+    showAuth (auth) {
+      if (auth === '1') return 'User'
+      else if (auth === '2') return 'Admin'
+      else return 'Superadmin'
     }
   }
 }

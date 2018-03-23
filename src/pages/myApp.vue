@@ -23,8 +23,17 @@ export default {
   created () {
     this.name = this.getCookie('name')
     this.auth = this.getCookie('auth')
+    this.userValidate()
   },
   methods: {
+    userValidate () {
+      if (this.auth !== '2' && this.auth !== '3') {
+        console.log('myApp.vue - userValidate fail')
+        this.$router.push({
+          name: 'Login'
+        })
+      }
+    },
     getCookie (key) {
       var arr
       var reg = new RegExp('(^| )' + key + '=([^;]*)(;|$)')
