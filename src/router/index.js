@@ -9,8 +9,6 @@ import Question from '@/pages/question'
 import Department from '@/pages/department'
 import Procedure from '@/pages/procedure'
 import Case from '@/pages/case'
-import ElementUI from '@/pages/elementui'
-import ElementUI2 from '@/pages/elementui.1'
 
 Vue.use(Router)
 
@@ -55,12 +53,6 @@ export default new Router({
       path: '/login',
       // name: 'Login',
       component: Login
-    }, {
-      path: '/element-ui',
-      component: ElementUI
-    }, {
-      path: '/element-ui2',
-      component: ElementUI2
     }
   ]
 })

@@ -41,6 +41,7 @@
         :current-page="currentPage"
         :page-sizes="[5, 10]"
         :page-size="pageSize"
+        layout="prev, pager, next, jumper, sizes, ->, total"
         :total="filteredUserList.length">
         </el-pagination>
       </el-col>
@@ -218,37 +219,39 @@ export default {
       if ((arr = document.cookie.match(reg))) this.auth = parseInt(unescape(arr[2]))
     },
     getUserList () {
-      console.log('nameKeyword = \'' + this.nameKeyword + '\'')
-      this.userList = [
-        {id: 1, userName: 'test', auth: 1},
-        {id: 2, userName: '2', auth: 2},
-        {id: 3, userName: '2', auth: 2},
-        {id: 4, userName: '2', auth: 2},
-        {id: 5, userName: '2', auth: 2},
-        {id: 6, userName: '2', auth: 2},
-        {id: 7, userName: '2', auth: 2},
-        {id: 8, userName: '2', auth: 2},
-        {id: 9, userName: '2', auth: 2},
-        {id: 10, userName: '2', auth: 2},
-        {id: 11, userName: '3', auth: 3}
-      ]
-      // this.$api.post(//'/user/filter', userName: nameKeyword
-      //   '/user/all',
-      //   null,
-      //   response => { // status, userList[id, userName, auth]
-      //     if (response.status === 'success') {
-      //       this.userList = response.userList
-      //     } else {
-      //       window.alert('用户列表获取失败，刷新中...')
-      //       window.location.reload() // 刷新本页面，https://www.zhihu.com/question/49863095
-      //     }
-      //   }
-      // )
+      // console.log('nameKeyword = \'' + this.nameKeyword + '\'')
+      // this.userList = [
+      //   {id: 1, userName: 'test', auth: 1},
+      //   {id: 2, userName: '2', auth: 2},
+      //   {id: 3, userName: '2', auth: 2},
+      //   {id: 4, userName: '2', auth: 2},
+      //   {id: 5, userName: '2', auth: 2},
+      //   {id: 6, userName: '2', auth: 2},
+      //   {id: 7, userName: '2', auth: 2},
+      //   {id: 8, userName: '2', auth: 2},
+      //   {id: 9, userName: '2', auth: 2},
+      //   {id: 10, userName: '2', auth: 2},
+      //   {id: 11, userName: '3', auth: 3}
+      // ]
+      this.$api.post( // '/user/filter', userName: nameKeyword
+        '/user/filter',
+        {userName: this.nameKeyword},
+        response => { // status, userList[id, userName, auth]
+          if (response.status === 'success') {
+            this.userList = response.userList
+          } else {
+            this.$notify.error({
+              title: '错误',
+              message: '用户列表获取失败，请等待后重试'
+            })
+            // window.location.reload() // 刷新本页面，https://www.zhihu.com/question/49863095
+          }
+        }
+      )
     },
     isOperationDisabled (operationName, operationUserAuth) {
-      // disabled = false, 也就是button可点击
+      // 当disabled = false, 也就是button可点击
       // console.log('auth=' + this.auth + ' ua=' + userAuth + 'operationName=' + operationName)
-      // console.log('isOperationDisabled')
       if (this.auth === 2) { // normal admin
         if (operationUserAuth !== 1) return true
         else if (operationName === 'modifyUserAuth') return true
@@ -280,71 +283,89 @@ export default {
     addUser () {
       // console.log('addUser')
       this.$refs['addUserForm'].validate((valid) => {
-        console.log('addUser' + valid)
         if (valid) {
-          alert('submit!')
-          alert(this.operatingUser.userName + ' ' + this.operatingUser.pwd + ' ' + this.operatingUser.auth)
-          this.$refs['addUserForm'].resetFields()
-          this.resetOperationUser()
-          this.addUserDialogVisible = false
-          // this.userList.push({
-          //   id: userList.length + 1,
-          //   userName: this.operatingUser.userName,
-          //   auth: this.operatingUser.auth
-          // })
-        } else {
-          alert('error submit!!')
+          this.$api.post(
+            '/user/add',
+            { // userName, pwd, auth
+              userName: this.operatingUser.userName,
+              pwd: this.operatingUser.pwd,
+              auth: this.operatingUser.auth
+            },
+            response => { // status, id, userName, auth, pictureUrl
+              if (response.status === 'success') {
+                this.userList.push({
+                  id: response.id,
+                  userName: response.userName,
+                  auth: response.auth
+                })
+                this.$notify.success({
+                  title: '成功',
+                  message: '新用户ID为' + response.id
+                })
+                this.$refs['addUserForm'].resetFields()
+                this.resetOperationUser()
+                this.addUserDialogVisible = false
+              } else {
+                this.$notify.error({
+                  title: '错误',
+                  message: '新增用户失败，请等待后重试'
+                })
+              }
+            }
+          )
         }
       })
-
-      // this.$api.post(
-      //   '/user/add',
-      //   { // userName, pwd, auth
-      //     userName: this.newUser.name,
-      //     pwd: this.newUser.pwd,
-      //     auth: this.newUser.auth
-      //   },
-      //   response => { // status, id, userName, auth, pictureUrl
-      //     if (response.status === 'success') {
-      //       this.users.push({
-      //         id: response.id,
-      //         name: response.userName,
-      //         auth: response.auth
-      //       })
-      //     } else {
-      //       window.alert('增加用户失败')
-      //     }
-      //   }
-      // )
-
-      // this.getUserList()
     },
     removeUser () {
-      console.log('removeUser' + this.operatingUser.id)
-      this.resetOperationUser()
-      this.removeUserDialogVisible = false
-      // this.$api.post(
-      //   '/user/delete',
-      //   { // id
-      //     id: id
-      //   },
-      //   response => { // status
-      //     if (response.status === 'success') {
-      //       this.getUserList() // TODO
-      //     } else {
-      //       window.alert('删除用户失败')
-      //       console.log(response)
-      //     }
-      //   }
-      // )
+      this.$api.post(
+        '/user/delete',
+        { // id
+          id: this.operatingUser.id
+        },
+        response => { // status
+          if (response.status === 'success') {
+            this.getUserList()
+            this.$notify.success({
+              title: '成功',
+              message: '原用户ID为' + this.operatingUser.id + '已被删除'
+            })
+            this.resetOperationUser()
+            this.removeUserDialogVisible = false
+          } else {
+            this.$notify.error({
+              title: '错误',
+              message: '删除用户失败，请等待后重试'
+            })
+          }
+        }
+      )
     },
     modifyUserPwd () {
-      console.log('user.vue-modifyUserPwd' + this.operatingUser.id + ' ' + this.operatingUser.pwd + ' ' + this.operatingUser.newPwd) // TODO
-      this.resetOperationUser()
-      this.modifyPwdDialogVisible = false
+      // console.log('user.vue-modifyUserPwd' + this.operatingUser.id + ' ' + this.operatingUser.pwd + ' ' + this.operatingUser.newPwd) // TODO
+      this.$api.post(
+        '/user/pwd',
+        { // id, pwd
+          id: this.operatingUser.id,
+          pwd: this.operatingUser.newPwd
+        },
+        response => { // status
+          if (response.status === 'success') {
+            this.$notify.success({
+              title: '成功',
+              message: '已重置用户' + this.operatingUser.id + '的密码'
+            })
+            this.resetOperationUser()
+            this.modifyPwdDialogVisible = false
+          } else {
+            this.$notify.error({
+              title: '错误',
+              message: '重置用户密码失败，请等待后重试'
+            })
+          }
+        }
+      )
     },
     showModifyAuthDialog (id, userName, auth) {
-      // console.log('showModifyAuthDialog')
       this.modifyAuthDialogVisible = true
       this.operatingUser.id = id
       this.operatingUser.userName = userName
@@ -356,26 +377,29 @@ export default {
       this.operatingUser.userName = userName
     },
     modifyUserAuth () {
-      console.log('user.vue-modifyUserAuth' + this.operatingUser.id + ' ' + this.operatingUser.newAuth)
-      // this.$api.post(
-      //   '/user/auth',
-      //   { // id, auth
-      //     id: this.operatingUser.id,
-      //     auth: this.operatingUser.auth
-      //   },
-      //   response => { // status
-      //     if (response.status === 'success') {
-      //       this.getUserList() // TODO
-      //     } else {
-      //       window.alert('更新用户权限失败')
-      //       console.log(response)
-      //     }
-      //   }
-      // )
-
-      this.resetOperationUser()
-      this.modifyAuthDialogVisible = false
-      this.getUserList()
+      this.$api.post(
+        '/user/auth',
+        { // id, auth
+          id: this.operatingUser.id,
+          auth: this.operatingUser.newAuth
+        },
+        response => { // status
+          if (response.status === 'success') {
+            this.getUserList()
+            this.$notify.success({
+              title: '成功',
+              message: '已修改用户' + this.operatingUser.id + '的权限'
+            })
+            this.resetOperationUser()
+            this.modifyAuthDialogVisible = false
+          } else {
+            this.$notify.error({
+              title: '错误',
+              message: '修改权限密码失败，请等待后重试'
+            })
+          }
+        }
+      )
     },
     showAuth (auth) {
       if (auth === 1) return 'User'
@@ -384,14 +408,11 @@ export default {
     },
     handleSizeChange: function (size) {
       this.pageSize = size
-      console.log('每页' + size + '条')
+      // console.log('每页' + size + '条')
     },
     handleCurrentChange: function (currentPage) {
       this.currentPage = currentPage
-      console.log('当前为' + currentPage)
-    },
-    handleClick (row) {
-      console.log(row)
+      // console.log('当前为' + currentPage)
     },
     authFormatter (row) {
       return this.showAuth(row.auth)
@@ -408,7 +429,7 @@ export default {
     authFilterChange (columnKey) {
       if (columnKey.auth.length === 0) this.authFilter = 0
       else this.authFilter = columnKey.auth[0]
-      console.log(this.authFilter)
+      // console.log(this.authFilter)
     }
   }
 }

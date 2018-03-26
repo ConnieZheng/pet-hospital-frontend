@@ -25,7 +25,7 @@ export default {
   methods: {
     userValidate () {
       if (this.auth !== '2' && this.auth !== '3') {
-        console.log('myApp.vue - userValidate fail')
+        // console.log('myApp.vue - userValidate fail')
         this.$router.push({
           // name: 'Login'
           path: '/login'

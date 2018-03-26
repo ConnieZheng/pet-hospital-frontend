@@ -3,8 +3,6 @@
 > A pet hospital learning management project
 
 1. Login 1.1
-<!-- 2. Header 0.1
-3. Sidebar 0.1 -->
 2. User management 1.1
 3. Question management 0.1
 4. Procedure management 0.1

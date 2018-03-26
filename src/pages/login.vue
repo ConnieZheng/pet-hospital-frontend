@@ -65,38 +65,35 @@ export default {
     submit () {
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
-          // alert('submit!')
-          this.setCookie('name', 'Connie')
-          this.setCookie('auth', 3)
-          this.setCookie('picUrl', 'response.pictureUrl')
-          this.$router.push({
-            path: '/'
-          })
-        } else {
-          console.log('error submit!!')
-          return false
+          this.$api.post(
+            '/user/login',
+            { // userName, pwd
+              userName: this.loginForm.name,
+              pwd: this.loginForm.pwd
+            },
+            response => { // status, id, userName, auth, pictureUrl
+              if (response.status === 'success' && response.auth !== 1) {
+                this.setCookie('name', response.userName)
+                this.setCookie('auth', response.auth)
+                this.setCookie('picUrl', response.pictureUrl)
+                this.$router.push({
+                  path: '/'
+                })
+              } else if (response.auth === 1) {
+                this.$notify.error({
+                  title: '错误',
+                  message: '用户权限不够'
+                })
+              } else {
+                this.$notify.error({
+                  title: '错误',
+                  message: '用户名或密码错误'
+                })
+              }
+            }
+          )
         }
       })
-
-      // this.$api.post(
-      //   '/user/login',
-      //   { // userName, pwd
-      //     userName: this.name,
-      //     pwd: this.pwd
-      //   },
-      //   response => { // status, id, userName, auth, pictureUrl
-      //     if (response.status === 'success') {
-      //       this.setCookie('name', response.userName)
-      //       this.setCookie('auth', response.auth)
-      //       this.setCookie('picUrl', response.pictureUrl)
-      //       this.$router.push({
-      //         name: 'User'
-      //       })
-      //     } else {
-      //       this.msg = '用户名或密码错误'
-      //     }
-      //   }
-      // )
     },
     reset () {
       this.$refs['loginForm'].resetFields()
