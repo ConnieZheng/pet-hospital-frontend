@@ -3,11 +3,14 @@ import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import MyApp from '@/pages/myApp'
 import Login from '@/pages/login'
+import Home from '@/pages/home'
 import User from '@/pages/user'
-import Question from '@/pages/Question'
-import Department from '@/pages/Department'
-import Procedure from '@/pages/Procedure'
-import Case from '@/pages/Case'
+import Question from '@/pages/question'
+import Department from '@/pages/department'
+import Procedure from '@/pages/procedure'
+import Case from '@/pages/case'
+import ElementUI from '@/pages/elementui'
+import ElementUI2 from '@/pages/elementui.1'
 
 Vue.use(Router)
 
@@ -18,8 +21,12 @@ export default new Router({
       component: MyApp,
       children: [
         {
+          path: '',
+          component: Home
+        },
+        {
           path: 'user',
-          name: 'User',
+          // name: 'User',
           component: User
         },
         {
@@ -46,8 +53,14 @@ export default new Router({
       component: HelloWorld
     }, {
       path: '/login',
-      name: 'Login',
+      // name: 'Login',
       component: Login
+    }, {
+      path: '/element-ui',
+      component: ElementUI
+    }, {
+      path: '/element-ui2',
+      component: ElementUI2
     }
   ]
 })

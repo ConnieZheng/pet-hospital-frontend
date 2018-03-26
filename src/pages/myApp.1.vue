@@ -1,15 +1,19 @@
 <template>
   <div>
+    <!-- 逻辑完善，未测试过api，未引入elementui -->
     <my-header v-bind:name="name" v-bind:auth="auth"></my-header>
+    <my-sidebar></my-sidebar>
     <router-view/>
   </div>
 </template>
 
 <script>
 import myHeader from '../components/header.vue'
+import mySidebar from '../components/sidebar.vue'
 export default {
   components: {
-    myHeader
+    myHeader,
+    mySidebar
   },
   data () {
     return {

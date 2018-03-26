@@ -8,6 +8,9 @@ yarn-error.log*
 /test/e2e/reports/
 selenium-debug.log
 /api-json/
+/pages/*.1.vue
+/components/*.1.vue
+/components/*.2.vue
 
 # Editor directories and files
 .idea

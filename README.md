@@ -2,14 +2,18 @@
 
 > A pet hospital learning management project
 
-1. Login 1.0
-2. Header 0.1
-3. Sidebar 0.1
-4. User management 1.0
+1. Login 1.1
+<!-- 2. Header 0.1
+3. Sidebar 0.1 -->
+2. User management 1.1
+3. Question management 0.1
+4. Procedure management 0.1
+5. Department management 0.1
+6. Case Management 0.1
 
-*2.0 = ready for test*
+*2.x = ready for test*
 
-*1.0 = functionally work*
+*1.x = functionally work*
 
 *0.1 = router work*
 
