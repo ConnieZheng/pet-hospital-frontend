@@ -12,7 +12,7 @@
       <!-- <el-row :gutter="20" class="bg-purple-dark">       -->
         <el-col :span="8"><div class="grid-content"></div></el-col>
         <!-- <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>      -->
-        <el-col :span="8" class="grid-content">
+        <el-col :span="8">
           <el-form :model="loginForm" label-width="80px" size="small" :rules="loginRule" ref="loginForm" label-position="top">
             <el-form-item label="用户名" prop="name">
               <el-input v-model="loginForm.name" clearable></el-input>
@@ -20,8 +20,7 @@
             <el-form-item label="密码" prop="pwd">
               <el-input v-model="loginForm.pwd" clearable></el-input>
             </el-form-item>
-            <el-form-item size="medium">
-              <el-col :span="8">&nbsp;</el-col>
+            <el-form-item size="medium" class="row-col-center">
               <el-button type="primary" @click="submit">登录</el-button>
               <el-button v-on:click="reset">重置</el-button>
             </el-form-item>
@@ -102,7 +101,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .el-header {
   text-align: center;
   line-height: 60px;
@@ -118,5 +117,10 @@ export default {
 .bg-purple-dark {
   background: #99a9bf;
 }
-
+.row-col-center {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
 </style>
