@@ -2,6 +2,18 @@
 var root = '/api'
 // 引用axios
 var axios = require('axios')
+
+function updateCookie (key, hours) {
+  var arr
+  var reg = new RegExp('(^| )' + key + '=([^;]*)(;|$)')
+  var value
+  if ((arr = document.cookie.match(reg))) {
+    value = unescape(arr[2])
+  }
+  var seconds = hours * 60 * 60
+  document.cookie = key + '=' + escape(value) + ';max-age=' + seconds
+}
+
 // 自定义判断元素类型JS
 function toType (obj) {
   return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
@@ -31,7 +43,6 @@ function filterNull (o) {
   主要是，不同的接口的成功标识和失败提示是不一致的。
   另外，不同的项目的处理方法也是不一致的，这里出错就是简单的alert
 */
-
 function apiAxios (method, url, params, success) {
   if (params) {
     params = filterNull(params)
@@ -45,6 +56,12 @@ function apiAxios (method, url, params, success) {
     withCredentials: false
   })
     .then(function (res) {
+      // console.log('xxxx' + url)
+      if (url !== '/user/login') {
+        updateCookie('name', 0.25)
+        updateCookie('auth', 0.25)
+        updateCookie('picUrl', 0.25)
+      }
       if (success) {
         success(res.data) // 返回的是res.data而不是res
       }

@@ -1,8 +1,12 @@
 <template>
-  <div>
-    <my-header v-bind:name="name" v-bind:auth="auth"></my-header>
-    <router-view/>
-  </div>
+  <el-container>
+    <el-header style="height: auto">
+      <my-header v-bind:name="name"/>
+    </el-header>
+    <el-main>
+      <router-view/>
+    </el-main>
+  </el-container>
 </template>
 
 <script>
@@ -18,8 +22,8 @@ export default {
     }
   },
   created () {
-    this.name = this.getCookie('name')
-    this.auth = this.getCookie('auth')
+    this.name = this.$cookie.get('name')
+    this.auth = this.$cookie.get('auth')
     this.userValidate()
   },
   methods: {
@@ -27,17 +31,9 @@ export default {
       if (this.auth !== '2' && this.auth !== '3') {
         // console.log('myApp.vue - userValidate fail')
         this.$router.push({
-          // name: 'Login'
           path: '/login'
         })
       }
-    },
-    getCookie (key) {
-      var arr
-      var reg = new RegExp('(^| )' + key + '=([^;]*)(;|$)')
-
-      if ((arr = document.cookie.match(reg))) return unescape(arr[2])
-      else return null
     }
   }
 }

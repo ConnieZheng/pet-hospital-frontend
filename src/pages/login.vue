@@ -2,23 +2,24 @@
   <el-container>
     <!-- <my-header>
     </my-header> -->
-    <el-header>
-      <big>欢迎来到 宠物医院学习系统</big>
-      <small>后台管理</small>
+    <el-header style="height: auto">
+      <h1>欢迎来到宠物医院学习系统</h1>
+      <h4>后台管理</h4>
     </el-header>
 
     <el-main>
-      <el-row :gutter="20">
-      <!-- <el-row :gutter="20" class="bg-purple-dark">       -->
-        <el-col :span="8"><div class="grid-content"></div></el-col>
-        <!-- <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>      -->
-        <el-col :span="8">
-          <el-form :model="loginForm" label-width="80px" size="small" :rules="loginRule" ref="loginForm" label-position="top">
+      <el-row>
+        <el-col :span="16" class="hidden-xs-only">
+          <img style="padding-left: 12.5%" width="75%" src="static/img/login.jpg">
+        </el-col>
+        <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
+          <el-form :model="loginForm" label-width="80px" size="small" :rules="loginRule" ref="loginForm" label-position="top" style="padding-top: 10%">
             <el-form-item label="用户名" prop="name">
               <el-input v-model="loginForm.name" clearable></el-input>
             </el-form-item>
             <el-form-item label="密码" prop="pwd">
-              <el-input v-model="loginForm.pwd" clearable></el-input>
+              <el-input v-model="loginForm.pwd" clearable v-on:keyup.enter="submit"></el-input>
+              <input v-model="loginForm.pwd" v-on:keyup.enter="submit">
             </el-form-item>
             <el-form-item size="medium" class="row-col-center">
               <el-button type="primary" @click="submit">登录</el-button>
@@ -26,7 +27,6 @@
             </el-form-item>
           </el-form>
         </el-col>
-        <!-- <el-col :span="6"><div class="grid-content"></div></el-col> -->
       </el-row>
     </el-main>
   </el-container>
@@ -56,12 +56,14 @@ export default {
     }
   },
   methods: {
-    setCookie (key, value) {
-      var hours = 0.1
-      var seconds = hours * 60 * 60
-      document.cookie = key + '=' + escape(value) + ';max-age=' + seconds
-    },
     submit () {
+      // this.$cookie.set('name', this.loginForm.name, 0.25)
+      // this.$cookie.set('auth', 3, 0.25)
+      // this.$cookie.set('picUrl', 'testUrl', 0.25)
+      // this.$router.push({
+      //   path: '/'
+      // })
+
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
           this.$api.post(
@@ -72,9 +74,9 @@ export default {
             },
             response => { // status, id, userName, auth, pictureUrl
               if (response.status === 'success' && response.auth !== 1) {
-                this.setCookie('name', response.userName)
-                this.setCookie('auth', response.auth)
-                this.setCookie('picUrl', response.pictureUrl)
+                this.$cookie.set('name', this.loginForm.name, 0.25)
+                this.$cookie.set('auth', 3, 0.25)
+                this.$cookie.set('picUrl', 'testUrl', 0.25)
                 this.$router.push({
                   path: '/'
                 })
@@ -83,10 +85,15 @@ export default {
                   title: '错误',
                   message: '用户权限不够'
                 })
-              } else {
+              } else if (response.status === 'sqlFail') {
                 this.$notify.error({
                   title: '错误',
                   message: '用户名或密码错误'
+                })
+              } else {
+                this.$notify.error({
+                  title: '错误',
+                  message: '未知错误'
                 })
               }
             }
@@ -104,7 +111,6 @@ export default {
 <style scoped>
 .el-header {
   text-align: center;
-  line-height: 60px;
   color: #606266;
 }
 .bg-purple {

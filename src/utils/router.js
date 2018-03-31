@@ -9,6 +9,7 @@ import Question from '@/pages/question'
 import Department from '@/pages/department'
 import Procedure from '@/pages/procedure'
 import Case from '@/pages/case'
+import Test from '@/pages/test'
 
 Vue.use(Router)
 
@@ -42,6 +43,10 @@ export default new Router({
         {
           path: 'case',
           component: Case
+        },
+        {
+          path: 'test',
+          component: Test
         }
       ]
     },

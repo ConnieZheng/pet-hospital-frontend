@@ -1,23 +1,15 @@
 <template>
-  <div style="padding: 50px">
+  <el-container direction="vertical" style="padding: 50px">
     <!-- 引入elementui -->
-    <!-- <br> -->
-    <el-row style="margin-top: 20px">
-      <el-col :span="24">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-        </el-breadcrumb>
-      </el-col>
-    </el-row>
+    <my-breadcrumb v-bind:index=1></my-breadcrumb>
 
-    <el-row :gutter="20"  style="margin-top: 20px">
+    <el-row>
       <el-col :span="5">
         <el-button type="primary" v-on:click="addUserDialogVisible = !addUserDialogVisible" icon="el-icon-plus">增加用户</el-button>
       </el-col>
 
-      <el-col :span="9">
-        <el-form :inline="true">
+      <el-col :span="9" class="row-col-center">
+        <el-form :inline="true" @submit.native.prevent>
           <el-form-item>
             <el-input v-model="nameKeyword" placeholder="用户名" clearable></el-input>
           </el-form-item>
@@ -29,11 +21,12 @@
               :value="item.value">
             </el-option>
           </el-select> -->
-          <!-- <el-form-item> -->
+          <el-form-item>
             <el-button type="primary" v-on:click="getUserList" icon="el-icon-search">搜索用户</el-button>
-          <!-- </el-form-item> -->
+          </el-form-item>
         </el-form>
       </el-col>
+
       <el-col :span="10">
         <el-pagination background
         @size-change="handleSizeChange"
@@ -69,7 +62,6 @@
       </el-table-column>
     </el-table>
 
-    <!-- TODO -->
     <el-dialog
       title="重置密码"
       :visible.sync="modifyPwdDialogVisible"
@@ -105,6 +97,7 @@
       title="删除用户"
       :visible.sync="removeUserDialogVisible"
       width="30%">
+      <span>确认删除名为{{operatingUser.userName}}的用户吗？</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="removeUserDialogVisible = false">取消</el-button>
         <el-button type="danger" @click="removeUser">确定</el-button>
@@ -150,12 +143,16 @@
         <el-button type="primary" @click="addUser">确定</el-button>
       </span>
     </el-dialog>
-  </div>
+  </el-container>
 
 </template>
 
 <script>
+import myBreadcrumb from '../components/breadcrumb'
 export default {
+  components: {
+    myBreadcrumb
+  },
   data () {
     return {
       // name: '', // this.$route.params.name,
@@ -165,7 +162,7 @@ export default {
       userList: [],
       userAuthOptions: [], // addUser, modifyAuth
       operatingUser: {
-        id: '',
+        id: 0,
         userName: '',
         pwd: '',
         auth: 1,
@@ -199,7 +196,7 @@ export default {
   computed: {
     filteredUserList: function () {
       // console.log('use.vue-filteredUsers:' + typeof this.authFilter)
-      // console.log('this.authFilter' + this.authFilter)
+      console.log('this.authFilter' + this.authFilter)
       if (this.authFilter === 0) {
         return this.userList
       }
@@ -213,10 +210,7 @@ export default {
   },
   methods: {
     getAuth () {
-      var arr
-      var reg = new RegExp('(^| )' + 'auth' + '=([^;]*)(;|$)')
-
-      if ((arr = document.cookie.match(reg))) this.auth = parseInt(unescape(arr[2]))
+      this.auth = parseInt(this.$cookie.get('auth'))
     },
     getUserList () {
       // console.log('nameKeyword = \'' + this.nameKeyword + '\'')
@@ -436,11 +430,11 @@ export default {
 </script>
 
 <style scoped>
-.el-main {
-  background-color: #E9EEF3;
-  color: #333;
-  text-align: center;
-  line-height: 160px;
+.row-col-center {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 </style>
