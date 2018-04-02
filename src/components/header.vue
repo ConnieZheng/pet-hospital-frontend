@@ -6,28 +6,28 @@
     </el-col>
 
     <el-col :span="15">
-      <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" style="border-bottom: none">
-        <el-menu-item index="">
+      <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" style="border-bottom: none" :router="true">
+        <el-menu-item index="/">
           <i class="fa fa-home fa-lg"/>
           <span class="hidden-md-and-down">&nbsp;首页</span>
         </el-menu-item>
-        <el-menu-item index="user">
+        <el-menu-item index="/user">
           <i class="fa fa-users fa-lg"/>
           <span class="hidden-md-and-down">&nbsp;用户管理</span>
         </el-menu-item>
-        <el-menu-item index="question">
-          <i class="fa fa-book fa-lg"/>&nbsp;
-          <span class="hidden-md-and-down">试题管理</span>
+        <el-menu-item index="/question">
+          <i class="fa fa-book fa-lg"/>
+          <span class="hidden-md-and-down">&nbsp;试题管理</span>
         </el-menu-item>
-        <el-menu-item index="procedure">
+        <el-menu-item index="/procedure">
           <i class="fa fa-list-ol fa-lg"/>
           <span class="hidden-md-and-down">&nbsp;流程管理</span>
         </el-menu-item>
-        <el-menu-item index="department">
+        <el-menu-item index="/department">
           <i class="fa fa-hospital-o fa-lg"/>
           <span class="hidden-md-and-down">&nbsp;科室管理</span>
         </el-menu-item>
-        <el-menu-item index="case">
+        <el-menu-item index="/case">
           <i class="fa fa-video-camera fa-lg"/>
           <span class="hidden-md-and-down">&nbsp;病例管理</span>
         </el-menu-item>
@@ -43,8 +43,11 @@
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item disabled>{{name}}</el-dropdown-item>
           <el-dropdown-item>
-            <i class="fa fa-cog fa-lg"/>
-            账户设置
+            <!-- TODO: 没用 -->
+            <span @click="profile">
+              <i class="fa fa-cog fa-lg"/>
+              账户设置
+            </span>
           </el-dropdown-item>
           <el-dropdown-item>
             <span @click="logout">
@@ -65,21 +68,43 @@ export default {
   },
   data () {
     return {
-      activeIndex: ''
+      activeIndex: '/'
     }
   },
-  created () {
-    this.activeIndex = this.$router.currentRoute.fullPath.split('/').pop()
-  },
+  // computed: {
+  //   activeIndex () {
+  //     // console.log(this.$router.currentRoute.fullPath.split('/'))
+  //     // console.log(this.$router.currentRoute.fullPath)
+  //     return this.$router.currentRoute.fullPath.split('/').pop()
+  //   }
+  // },
+  // beforeCreate () {
+  //   console.log('beforeCreate')
+  // },
+  // created () {
+  //   console.log('created')
+  // },
+  // beforeMount () {
+  //   console.log('beforeMount')
+  // },
+  // mounted () {
+  //   console.log('mounted')
+  // },
+  // beforeUpdate () {
+  //   console.log('beforeUpdate')
+  // },
+  // updated () {
+  //   console.log('updated')
+  // },
   methods: {
-    handleSelect (key, keyPath) {
-      // console.log(typeof key, keyPath)
-      this.$router.push({
-        path: '/' + key
-      })
-    },
+    // handleSelect (key, keyPath) {
+    //   // console.log(typeof key, keyPath)
+    //   this.$router.push({
+    //     path: '/' + key
+    //   })
+    // },
     logout () {
-      console.log('logout')
+      // console.log('logout')
       this.$api.post(
         '/user/logout',
         null,
@@ -99,6 +124,9 @@ export default {
           }
         }
       )
+    },
+    profile () {
+      this.$router.push({path: '/profile'})
     }
   }
 }

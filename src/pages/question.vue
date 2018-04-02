@@ -57,7 +57,7 @@
     </el-table>
 
     <el-row :gutter="20">
-      <el-col :span="12" :offset="6">
+      <el-col>
         <el-pagination background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -72,6 +72,7 @@
     <el-dialog
       title="修改试题"
       :visible.sync="modifyQuestionDialogVisible"
+      :before-close="handleModifyDialogClose"
       width="50%">
       <el-form ref="modifyQuestionForm" :model="operatingQuestion" label-width="80px" :rules="questionRule" size="small"  label-position="left">
         <el-form-item label="题干" prop="stem">
@@ -110,9 +111,7 @@
           </el-select>
         </el-form-item>
       </el-form>
-
       <span slot="footer" class="dialog-footer">
-        <el-button @click="modifyQuestionDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="modifyQuestion">确定</el-button>
       </span>
     </el-dialog>
@@ -120,6 +119,7 @@
     <el-dialog
       title="增加试题"
       :visible.sync="addQuestionDialogVisible"
+      :before-close="handleModifyDialogClose"
       width="50%">
       <el-form ref="addQuestionForm" :model="operatingQuestion" label-width="80px" :rules="questionRule" size="small"  label-position="left">
         <el-form-item label="题干" prop="stem">
@@ -287,12 +287,12 @@ export default {
         null,
         response => { // status, categoryList(类型是List<String>)
           if (response.status === 'success') {
-            var api = {
-              status: 'success',
-              categoryList: ['c1', 'c2', 'c3']
-            }
+            // var api = {
+            //   status: 'success',
+            //   categoryList: ['c1', 'c2', 'c3']
+            // }
             var result = []
-            api.categoryList.forEach(function (elem) {
+            response.categoryList.forEach(function (elem) {
               result.push({
                 value: elem,
                 text: elem
@@ -360,6 +360,7 @@ export default {
                   title: '成功',
                   message: '新试题ID为' + response.id
                 })
+                this.getCategoryList() // 防止有新的试题类别
                 this.$refs['addQuestionForm'].resetFields()
                 this.resetOperatingQuestion()
                 this.addQuestionDialogVisible = false
@@ -385,8 +386,9 @@ export default {
                 this.getQuestionList()
                 this.$notify.success({
                   title: '成功',
-                  message: '已成功修改ID为' + response.id + '的试题'
+                  message: '已成功修改ID为' + this.operatingQuestion.id + '的试题'
                 })
+                this.getCategoryList() // 防止有新的试题类别
                 this.$refs['modifyQuestionForm'].resetFields()
                 this.resetOperatingQuestion()
                 this.modifyQuestionDialogVisible = false
@@ -404,13 +406,13 @@ export default {
     removeQuestion () {
       this.$api.post(
         '/question/delete',
-        {id: this.operatingQuestion}, // TODO: check
+        {id: this.operatingQuestion.id},
         response => { // status, id，category，stem，optA，optB，optC，optD，answer
           if (response.status === 'success') {
             this.getQuestionList()
             this.$notify.success({
               title: '成功',
-              message: '已成功删除ID为' + response.id + '的试题'
+              message: '已成功删除ID为' + this.operatingQuestion.id + '的试题'
             })
             this.resetOperatingQuestion()
             this.removeQuestionDialogVisible = false
@@ -424,15 +426,38 @@ export default {
       )
     },
     resetOperatingQuestion () {
-      this.id = 0
-      this.category = ''
-      this.stem = ''
-      this.optA = ''
-      this.optB = ''
-      this.optC = ''
-      this.optD = ''
-      this.answer = ''
+      this.operatingQuestion.id = 0
+      this.operatingQuestion.category = ''
+      this.operatingQuestion.stem = ''
+      this.operatingQuestion.optA = ''
+      this.operatingQuestion.optB = ''
+      this.operatingQuestion.optC = ''
+      this.operatingQuestion.optD = ''
+      this.operatingQuestion.answer = ''
+    },
+    handleAddDialogClose (done) {
+      this.$refs['addQuestionForm'].resetFields()
+      done()
+    },
+    handleModifyDialogClose (done) {
+      this.$refs['modifyQuestionForm'].resetFields()
+      done()
     }
   }
 }
 </script>
+
+<style>
+.demo-table-expand {
+  font-size: 0;
+}
+.demo-table-expand label {
+  width: 90px;
+  color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
+}
+</style>

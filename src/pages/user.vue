@@ -4,14 +4,28 @@
     <my-breadcrumb v-bind:index=1></my-breadcrumb>
 
     <el-row>
-      <el-col :span="5">
+      <el-col :span="2">
         <el-button type="primary" v-on:click="addUserDialogVisible = !addUserDialogVisible" icon="el-icon-plus">增加用户</el-button>
       </el-col>
 
-      <el-col :span="9" class="row-col-center">
+      <el-col :span="19" class="row-col-center">
+        <el-pagination background
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[1, 5, 10]"
+        :page-size="pageSize"
+        layout="total, prev, pager, next, sizes"
+        :total="filteredUserList.length">
+        </el-pagination>
+      </el-col>
+
+      <el-col :span="3">
         <el-form :inline="true" @submit.native.prevent>
           <el-form-item>
-            <el-input v-model="nameKeyword" placeholder="用户名" clearable></el-input>
+            <el-input v-model="nameKeyword" placeholder="用户名" style="width: 120px" clearable @keyup.enter.native="getUserList" @change="getUserList">
+              <i slot="prefix" class="el-input__icon el-icon-search"></i>
+            </el-input>
           </el-form-item>
           <!-- <el-select v-model="authFilter" placeholder="请选择">
             <el-option
@@ -21,24 +35,17 @@
               :value="item.value">
             </el-option>
           </el-select> -->
-          <el-form-item>
-            <el-button type="primary" v-on:click="getUserList" icon="el-icon-search">搜索用户</el-button>
-          </el-form-item>
+          <!-- <el-form-item>
+            <el-button type="primary" v-on:click="getUserList" icon="el-icon-search">
+              <span class="hidden-md-and-down">
+                搜索用户
+              </span>
+            </el-button>
+          </el-form-item> -->
         </el-form>
       </el-col>
 
-      <el-col :span="10">
-        <el-pagination background
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[5, 10]"
-        :page-size="pageSize"
-        layout="prev, pager, next, jumper, sizes, ->, total"
-        :total="filteredUserList.length">
-        </el-pagination>
-      </el-col>
-    </el-row>
+   </el-row>
 
     <el-table stripe :data="filteredUserList.slice((currentPage-1)*pageSize,currentPage*pageSize)" @filter-change="authFilterChange">
       <el-table-column prop="id" label="ID">
@@ -61,6 +68,9 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <el-row>
+    </el-row>
 
     <el-dialog
       title="重置密码"
@@ -88,7 +98,6 @@
         </el-option>
       </el-select>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="modifyAuthDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="modifyUserAuth">确定</el-button>
       </span>
     </el-dialog>
@@ -99,7 +108,6 @@
       width="30%">
       <span>确认删除名为{{operatingUser.userName}}的用户吗？</span>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="removeUserDialogVisible = false">取消</el-button>
         <el-button type="danger" @click="removeUser">确定</el-button>
       </span>
     </el-dialog>
@@ -107,11 +115,15 @@
     <el-dialog
       title="重置密码"
       :visible.sync="modifyPwdDialogVisible"
+      :before-close="handleClose2"
       width="30%">
-      <span>重置用户名为{{operatingUser.userName}}的用户密码为</span>
-      <el-input v-model="operatingUser.newPwd" placeholder="新密码"></el-input>
+      <el-form :model="operatingUser" label-width="80px" size="small" :rules="modifyUserPwdRule" ref="modifyUserPwdForm" label-position="left">
+        <span>重置用户名为{{operatingUser.userName}}的用户密码为</span>
+        <el-form-item label="新密码" prop="newPwd">
+          <el-input v-model="operatingUser.newPwd" clearable></el-input>
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="modifyPwdDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="modifyUserPwd">确定</el-button>
       </span>
     </el-dialog>
@@ -119,6 +131,7 @@
     <el-dialog
       title="增加用户"
       :visible.sync="addUserDialogVisible"
+      :before-close="handleClose"
       width="30%">
         <el-form :model="operatingUser" label-width="80px" size="small" :rules="addUserRule" ref="addUserForm" label-position="left">
           <el-form-item label="用户名" prop="userName">
@@ -139,7 +152,6 @@
           </el-form-item>
         </el-form>
      <span slot="footer" class="dialog-footer">
-        <el-button @click="addUserDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="addUser">确定</el-button>
       </span>
     </el-dialog>
@@ -177,13 +189,19 @@ export default {
       pageSize: 5,
       addUserRule: {
         userName: [
-          { required: true, message: '请输入用户名', trigger: 'blur' }
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 6, max: 24, message: '长度在 6 到 24 个字符', trigger: 'change, blur' }
         ],
         pwd: [
           { required: true, message: '请输入密码', trigger: 'blur' }
         ],
         auth: [
           { required: true, message: '请输入权限', trigger: 'change' }
+        ]
+      },
+      modifyUserPwdRule: {
+        newPwd: [
+          { required: true, message: '请输入密码', trigger: 'change' }
         ]
       }
     }
@@ -196,7 +214,7 @@ export default {
   computed: {
     filteredUserList: function () {
       // console.log('use.vue-filteredUsers:' + typeof this.authFilter)
-      console.log('this.authFilter' + this.authFilter)
+      // console.log('this.authFilter' + this.authFilter)
       if (this.authFilter === 0) {
         return this.userList
       }
@@ -335,29 +353,32 @@ export default {
       )
     },
     modifyUserPwd () {
-      // console.log('user.vue-modifyUserPwd' + this.operatingUser.id + ' ' + this.operatingUser.pwd + ' ' + this.operatingUser.newPwd) // TODO
-      this.$api.post(
-        '/user/pwd',
-        { // id, pwd
-          id: this.operatingUser.id,
-          pwd: this.operatingUser.newPwd
-        },
-        response => { // status
-          if (response.status === 'success') {
-            this.$notify.success({
-              title: '成功',
-              message: '已重置用户' + this.operatingUser.id + '的密码'
-            })
-            this.resetOperationUser()
-            this.modifyPwdDialogVisible = false
-          } else {
-            this.$notify.error({
-              title: '错误',
-              message: '重置用户密码失败，请等待后重试'
-            })
-          }
+      this.$refs['modifyUserPwdForm'].validate((valid) => {
+        if (valid) {
+          this.$api.post(
+            '/user/pwd',
+            { // id, pwd
+              id: this.operatingUser.id,
+              pwd: this.operatingUser.newPwd
+            },
+            response => { // status
+              if (response.status === 'success') {
+                this.$notify.success({
+                  title: '成功',
+                  message: '已重置用户' + this.operatingUser.id + '的密码'
+                })
+                this.resetOperationUser()
+                this.modifyPwdDialogVisible = false
+              } else {
+                this.$notify.error({
+                  title: '错误',
+                  message: '重置用户密码失败，请等待后重试'
+                })
+              }
+            }
+          )
         }
-      )
+      })
     },
     showModifyAuthDialog (id, userName, auth) {
       this.modifyAuthDialogVisible = true
@@ -424,6 +445,14 @@ export default {
       if (columnKey.auth.length === 0) this.authFilter = 0
       else this.authFilter = columnKey.auth[0]
       // console.log(this.authFilter)
+    },
+    handleClose (done) {
+      this.$refs['addUserForm'].resetFields()
+      done()
+    },
+    handleClose2 (done) {
+      this.$refs['modifyUserPwdForm'].resetFields()
+      done()
     }
   }
 }

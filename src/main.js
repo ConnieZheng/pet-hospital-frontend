@@ -15,6 +15,8 @@ import '../static/css/font-awesome.min.css'
 import api from './utils/api'
 import cookie from './utils/cookie'
 
+import 'babel-polyfill'
+
 // 将API方法绑定到全局
 Vue.prototype.$api = api
 Vue.prototype.$cookie = cookie

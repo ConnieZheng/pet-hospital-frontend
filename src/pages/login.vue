@@ -18,10 +18,11 @@
               <el-input v-model="loginForm.name" clearable></el-input>
             </el-form-item>
             <el-form-item label="密码" prop="pwd">
-              <el-input v-model="loginForm.pwd" clearable v-on:keyup.enter="submit"></el-input>
-              <input v-model="loginForm.pwd" v-on:keyup.enter="submit">
+              <!-- <input type="password" v-model="loginForm.pwd"> -->
+              <el-input type="password" v-model="loginForm.pwd" clearable v-on:keyup.enter.native="submit"></el-input>
             </el-form-item>
             <el-form-item size="medium" class="row-col-center">
+              <!-- <button v-on:click="submit">登录</button> -->
               <el-button type="primary" @click="submit">登录</el-button>
               <el-button v-on:click="reset">重置</el-button>
             </el-form-item>
@@ -107,6 +108,11 @@ export default {
   }
 }
 </script>
+
+<style>
+/* 全局设置：禁用IE10和edge设置“密码显示”的功能 */
+input[type=password]::-ms-reveal { display: none; }
+</style>
 
 <style scoped>
 .el-header {

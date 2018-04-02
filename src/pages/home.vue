@@ -7,9 +7,9 @@
           <div slot="header">
           <i class="fa fa-users fa-lg"/>
           <span class="hidden-md-and-down">&nbsp;用户管理</span>
-          <el-button style="float: right; padding: 3px 0" type="text">
+          <!-- <el-button style="float: right; padding: 3px 0" type="text">
             <router-link to="/user">进入</router-link>
-          </el-button>
+          </el-button> -->
           </div>
           <div>
             介绍
