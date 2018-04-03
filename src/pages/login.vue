@@ -57,6 +57,12 @@ export default {
     }
   },
   methods: {
+    getMD5 (key) {
+      var md5 = this.$crypto.createHash('md5')
+      md5.update(key)
+      var a = md5.digest('hex')
+      return a
+    },
     submit () {
       // this.$cookie.set('name', this.loginForm.name, 0.25)
       // this.$cookie.set('auth', 3, 0.25)
@@ -67,17 +73,19 @@ export default {
 
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
+          var pwd = this.getMD5(this.loginForm.pwd)
+
           this.$api.post(
             '/user/login',
             { // userName, pwd
               userName: this.loginForm.name,
-              pwd: this.loginForm.pwd
+              pwd: pwd
             },
             response => { // status, id, userName, auth, pictureUrl
               if (response.status === 'success' && response.auth !== 1) {
                 this.$cookie.set('name', this.loginForm.name, 0.25)
-                this.$cookie.set('auth', 3, 0.25)
-                this.$cookie.set('picUrl', 'testUrl', 0.25)
+                this.$cookie.set('auth', response.auth, 0.25)
+                this.$cookie.set('picUrl', response.pictureUrl, 0.25)
                 this.$router.push({
                   path: '/'
                 })
@@ -86,10 +94,15 @@ export default {
                   title: '错误',
                   message: '用户权限不够'
                 })
-              } else if (response.status === 'sqlFail') {
+              } else if (response.status === 'inputFail') {
                 this.$notify.error({
                   title: '错误',
-                  message: '用户名或密码错误'
+                  message: '密码错误'
+                })
+              } else if (response.status === 'noUserFail') {
+                this.$notify.error({
+                  title: '错误',
+                  message: '用户名不存在'
                 })
               } else {
                 this.$notify.error({

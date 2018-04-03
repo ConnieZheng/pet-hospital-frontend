@@ -1,7 +1,8 @@
 <template>
   <el-container>
     <el-header style="height: auto">
-      <my-header v-bind:name="name"/>
+      <!-- <my-header v-bind:name="name"/> -->
+      <my-header/>
     </el-header>
     <el-main>
       <router-view/>

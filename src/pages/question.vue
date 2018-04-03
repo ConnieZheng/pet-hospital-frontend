@@ -13,7 +13,7 @@
         </el-button-group>
       </el-col>
 
-      <el-col :span="16">
+      <el-col style="text-align: right" :span="16">
         <el-input v-model="id" placeholder="题目编号" clearable style="width: 200px;"></el-input>
         <el-input v-model="keyword" placeholder="题干/任意选项" clearable style="width: 200px;"></el-input>
         <el-button type="primary" v-on:click="getQuestionList" icon="el-icon-search">搜索试题</el-button>
@@ -57,14 +57,14 @@
     </el-table>
 
     <el-row :gutter="20">
-      <el-col>
+      <el-col class="row-col-center">
         <el-pagination background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
           :page-sizes="[5, 10]"
           :page-size="pageSize"
-          layout="prev, pager, next, jumper, sizes, ->, total"
+          layout="total, prev, pager, next, sizes"
           :total="filteredQuestionList.length"/>
       </el-col>
     </el-row>
@@ -79,7 +79,7 @@
           <el-input v-model="operatingQuestion.stem"></el-input>
         </el-form-item>
         <el-form-item inline label="类别" prop="category">
-          <el-select v-model="operatingQuestion.category" filterable placeholder="请选择(支持搜索和输入新增)" allow-create style="width: 247.9px;">
+          <el-select v-model="operatingQuestion.category" filterable placeholder="请选择(支持搜索和输入新增)" allow-create style="width: 247.9px;" default-first-option>
             <el-option
               v-for="item in categoryList"
               :key="item.value"
@@ -119,7 +119,7 @@
     <el-dialog
       title="增加试题"
       :visible.sync="addQuestionDialogVisible"
-      :before-close="handleModifyDialogClose"
+      :before-close="handleAddDialogClose"
       width="50%">
       <el-form ref="addQuestionForm" :model="operatingQuestion" label-width="80px" :rules="questionRule" size="small"  label-position="left">
         <el-form-item label="题干" prop="stem">
@@ -448,6 +448,12 @@ export default {
 </script>
 
 <style>
+.row-col-center {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
 .demo-table-expand {
   font-size: 0;
 }

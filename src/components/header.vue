@@ -6,7 +6,7 @@
     </el-col>
 
     <el-col :span="15">
-      <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" style="border-bottom: none" :router="true">
+      <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" style="border-bottom: none" active-text-color="#409EFF" :router="true">
         <el-menu-item index="/">
           <i class="fa fa-home fa-lg"/>
           <span class="hidden-md-and-down">&nbsp;首页</span>
@@ -38,12 +38,13 @@
     <el-col :span="3">
       <el-dropdown>
         <span>
-          <img src="static/img/userpic.jpg" alt="userpic" height="60px" style="border-radius: 30px;">
+          <!-- {{picUrl}} -->
+          <img :src="picUrl" alt="userpic" height="60px" style="border-radius: 30px;">
+          {{name}}
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item disabled>{{name}}</el-dropdown-item>
           <el-dropdown-item>
-            <!-- TODO: 没用 -->
             <span @click="profile">
               <i class="fa fa-cog fa-lg"/>
               账户设置
@@ -62,40 +63,28 @@
 </template>
 
 <script>
+// import axios from 'axios'
 export default {
-  props: {
-    name: String
-  },
   data () {
     return {
-      activeIndex: '/'
+      activeIndex: '/',
+      pirUrl: '',
+      name: '',
+      loading: false
     }
   },
-  // computed: {
-  //   activeIndex () {
-  //     // console.log(this.$router.currentRoute.fullPath.split('/'))
-  //     // console.log(this.$router.currentRoute.fullPath)
-  //     return this.$router.currentRoute.fullPath.split('/').pop()
-  //   }
-  // },
-  // beforeCreate () {
-  //   console.log('beforeCreate')
-  // },
-  // created () {
-  //   console.log('created')
-  // },
-  // beforeMount () {
-  //   console.log('beforeMount')
-  // },
-  // mounted () {
-  //   console.log('mounted')
-  // },
-  // beforeUpdate () {
-  //   console.log('beforeUpdate')
-  // },
-  // updated () {
-  //   console.log('updated')
-  // },
+  created () {
+    this.name = this.$cookie.get('name')
+    this.picUrl = this.$cookie.get('picUrl')
+    this.$root.Bus.$on('updatedPic', value => {
+      this.picUrl = value
+      console.log('emit pic')
+    })
+    this.$root.Bus.$on('updatedName', value => {
+      // this.print(value)
+      this.name = value
+    })
+  },
   methods: {
     // handleSelect (key, keyPath) {
     //   // console.log(typeof key, keyPath)

@@ -73,18 +73,6 @@
     </el-row>
 
     <el-dialog
-      title="重置密码"
-      :visible.sync="modifyPwdDialogVisible"
-      width="30%">
-      <span>重置用户名为{{operatingUser.userName}}的用户密码为</span>
-      <el-input v-model="operatingUser.newPwd" placeholder="新密码"></el-input>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="modifyPwdDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="modifyUserPwd">确定</el-button>
-      </span>
-    </el-dialog>
-
-    <el-dialog
       title="修改权限"
       :visible.sync="modifyAuthDialogVisible"
       width="30%">
@@ -120,7 +108,7 @@
       <el-form :model="operatingUser" label-width="80px" size="small" :rules="modifyUserPwdRule" ref="modifyUserPwdForm" label-position="left">
         <span>重置用户名为{{operatingUser.userName}}的用户密码为</span>
         <el-form-item label="新密码" prop="newPwd">
-          <el-input v-model="operatingUser.newPwd" clearable></el-input>
+          <el-input v-model="operatingUser.newPwd" clearable type="password"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -138,7 +126,7 @@
             <el-input v-model="operatingUser.userName" clearable></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="pwd">
-            <el-input v-model="operatingUser.pwd" clearable></el-input>
+            <el-input type="password" v-model="operatingUser.pwd" clearable></el-input>
           </el-form-item>
           <el-form-item label="权限" prop="auth">
             <el-select v-model="operatingUser.auth">
@@ -296,11 +284,13 @@ export default {
       // console.log('addUser')
       this.$refs['addUserForm'].validate((valid) => {
         if (valid) {
+          var pwd = this.getMD5(this.operatingUser.pwd)
           this.$api.post(
             '/user/add',
-            { // userName, pwd, auth
+            // userName, pwd, auth
+            {
               userName: this.operatingUser.userName,
-              pwd: this.operatingUser.pwd,
+              pwd: pwd,
               auth: this.operatingUser.auth
             },
             response => { // status, id, userName, auth, pictureUrl
@@ -317,6 +307,21 @@ export default {
                 this.$refs['addUserForm'].resetFields()
                 this.resetOperationUser()
                 this.addUserDialogVisible = false
+              } else if (response.status === 'authFail') {
+                this.$notify.error({
+                  title: '错误',
+                  message: '权限不够'
+                })
+              } else if (response.status === 'duplicateUsernameFail') {
+                this.$notify.error({
+                  title: '错误',
+                  message: '用户名已存在'
+                })
+              } else if (response.status === 'invalidInputFail') {
+                this.$notify.error({
+                  title: '错误',
+                  message: '禁止输入非法字符'
+                })
               } else {
                 this.$notify.error({
                   title: '错误',
@@ -352,14 +357,24 @@ export default {
         }
       )
     },
+    getMD5 (key) {
+      var md5 = this.$crypto.createHash('md5')
+      md5.update(key)
+      var a = md5.digest('hex')
+      // console.log('md5 ' + a)
+      // 'foo' = 47bce5c74f589f4867dbd57e9ca9f808
+      return a
+    },
     modifyUserPwd () {
       this.$refs['modifyUserPwdForm'].validate((valid) => {
         if (valid) {
+          var pwd = this.getMD5(this.operatingUser.newPwd)
+
           this.$api.post(
             '/user/pwd',
             { // id, pwd
               id: this.operatingUser.id,
-              pwd: this.operatingUser.newPwd
+              pwd: pwd
             },
             response => { // status
               if (response.status === 'success') {
@@ -407,6 +422,11 @@ export default {
             })
             this.resetOperationUser()
             this.modifyAuthDialogVisible = false
+          } else if (response.status === 'authFail') {
+            this.$notify.error({
+              title: '错误',
+              message: '超级管理员不能修改自己的权限'
+            })
           } else {
             this.$notify.error({
               title: '错误',

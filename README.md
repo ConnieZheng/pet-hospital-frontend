@@ -8,6 +8,7 @@
 4. Procedure management 0.1
 5. Department management 0.1
 6. Case Management 0.1
+7. Profile 0.9(new pic doesn't show up in header)
 
 *2.x = ready for test*
 

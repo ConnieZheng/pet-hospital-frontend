@@ -16,10 +16,12 @@ import api from './utils/api'
 import cookie from './utils/cookie'
 
 import 'babel-polyfill'
+import crypto from 'crypto'
 
 // 将API方法绑定到全局
 Vue.prototype.$api = api
 Vue.prototype.$cookie = cookie
+Vue.prototype.$crypto = crypto
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
@@ -29,5 +31,10 @@ new Vue({
   el: '#app',
   router,
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  data () {
+    return {
+      Bus: new Vue()
+    }
+  }
 })
