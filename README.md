@@ -6,7 +6,7 @@
 2. User management 2.1
 3. Question management 2.0
 4. Procedure management 0.1
-5. Department management 0.1
+5. Department management 2.0
 6. Case Management 0.1
 7. Profile 0.9(new pic doesn't show up in header)
 

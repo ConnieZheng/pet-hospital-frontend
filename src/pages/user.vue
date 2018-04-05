@@ -5,7 +5,7 @@
 
     <el-row>
       <el-col :span="2">
-        <el-button type="primary" v-on:click="addUserDialogVisible = !addUserDialogVisible" icon="el-icon-plus">增加用户</el-button>
+        <el-button type="primary" v-on:click="addUserDialogVisible = true" icon="el-icon-plus">增加用户</el-button>
       </el-col>
 
       <el-col :span="19" class="row-col-center">
@@ -13,7 +13,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[1, 5, 10]"
+        :page-sizes="[5, 10]"
         :page-size="pageSize"
         layout="total, prev, pager, next, sizes"
         :total="filteredUserList.length">
@@ -346,8 +346,6 @@ export default {
               title: '成功',
               message: '原用户ID为' + this.operatingUser.id + '已被删除'
             })
-            this.resetOperationUser()
-            this.removeUserDialogVisible = false
           } else {
             this.$notify.error({
               title: '错误',
@@ -356,6 +354,8 @@ export default {
           }
         }
       )
+      this.resetOperationUser()
+      this.removeUserDialogVisible = false
     },
     getMD5 (key) {
       var md5 = this.$crypto.createHash('md5')

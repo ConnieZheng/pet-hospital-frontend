@@ -20,8 +20,6 @@
             <el-input v-model="opeatingUser.newUsername"/>
             <el-button type="primary" @click="invokeApiUpdate(1, {userName: opeatingUser.newUsername}, '昵称')" style="margin-left: 10px">修改昵称</el-button>
           </div>
-
-          <!-- <el-button type="text" @click="test">testBus</el-button> -->
         </el-card>
     </div>
 
@@ -43,8 +41,8 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="修改头像" :visible.sync="modifyPicUrlDialogVisible" width="20%"
-    :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false">
+    <el-dialog title="修改头像" :visible.sync="modifyPicUrlDialogVisible" width="238px"
+    :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" class="row-col-center">
       <!-- <form>
         <input type="file" @change="getFile($event)">
         <button @click="submitForm($event)">提交</button>
@@ -142,15 +140,19 @@ export default {
       // if (this.invokeApiUpdate({pictureUrl: this.imageUrl}, '头像')) {
       this.pictureUrl = this.imageUrl
       this.$cookie.set('picUrl', this.pictureUrl, 0.25)
-      console.log('updatedPic1 ' + this.pictureUrl)
-      this.$root.Bus.$emit('updatedPic', this.pictureUrl)
-      this.$root.Bus.$emit('updatedName', this.userName)
+
+      // this.$root.Bus.$emit('updatedPic', this.image)
+      location.reload()
 
       this.image = ''
       this.modifyPicUrlDialogVisible = false
       // }
     },
     invokeApiUpdate (methodNo, param, toast) {
+      if (methodNo === 1 && (param.userName.length < 6 || param.userName.length > 24)) {
+        this.$message.error('昵称的合法长度为6-24个字符（支持中文）')
+        return
+      }
       this.$api.post(
         '/user/update',
         param,
@@ -160,7 +162,6 @@ export default {
               title: '成功',
               message: '已成功修改用户的' + toast
             })
-            // console.log('/api/user/update return success')
             if (methodNo === 1) {
               this.userName = this.opeatingUser.newUsername
               this.$cookie.set('name', this.userName, 0.25)
@@ -211,7 +212,7 @@ export default {
     },
     handleAvatarSuccess (res, file) {
       this.image = res.webURL
-      this.$message.success('新头像已成功上次至服务器~')
+      this.$message.success('新头像已成功上传至服务器~')
       // console.log(res.webURL)
       this.modifyPic()
     },
@@ -225,12 +226,6 @@ export default {
         this.$message.error('上传头像图片大小不能超过 4MB!')
       }
       return isJPG && isLt4M
-    },
-    test () {
-      this.$root.Bus.$emit('updatedName', 'test')
-      this.$root.Bus.$emit('updatedPic', 'https://www.ecnupet.cn/pet/img/c6b67855-41ef-4acc-9359-483c1a7213d61.jpg')
-      this.$root.Bus.$emit('updatedPic', 'https://www.ecnupet.cn/pet/img/c6b67855-41ef-4acc-9359-483c1a7213d61.jpg')
-      // this.$root.Bus.$emit('updatedPic', 'static/img/userpic.jpg')
     }
   }
 }

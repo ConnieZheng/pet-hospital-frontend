@@ -160,7 +160,6 @@
       </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addQuestionDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="addQuestion">确定</el-button>
       </span>
     </el-dialog>
@@ -171,7 +170,6 @@
       width="30%">
       <span>试题编号为{{operatingQuestion.id}}，确认删除该试题吗？</span>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="removeQuestionDialogVisible = false">取消</el-button>
         <el-button type="danger" @click="removeQuestion">确定</el-button>
       </span>
     </el-dialog>
@@ -325,14 +323,7 @@ export default {
     },
     showModifyQuestionDialog (row) {
       this.modifyQuestionDialogVisible = true
-      this.operatingQuestion.id = row.id
-      this.operatingQuestion.stem = row.stem
-      this.operatingQuestion.category = row.category
-      this.operatingQuestion.optA = row.optA
-      this.operatingQuestion.optB = row.optB
-      this.operatingQuestion.optC = row.optC
-      this.operatingQuestion.optD = row.id
-      this.operatingQuestion.answer = row.answer
+      this.operatingQuestion = row
     },
     showRemoveQuestionDialog (id) {
       this.removeQuestionDialogVisible = true
@@ -343,7 +334,7 @@ export default {
         if (valid) {
           this.$api.post(
             '/question/add',
-            this.operatingQuestion, // TODO: check
+            this.operatingQuestion,
             response => { // status, id，category，stem，optA，optB，optC，optD，answer
               if (response.status === 'success') {
                 this.questionList.push({
@@ -447,7 +438,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .row-col-center {
   display: flex;
   flex-direction: row;

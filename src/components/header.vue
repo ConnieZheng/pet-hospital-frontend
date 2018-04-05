@@ -32,7 +32,6 @@
           <span class="hidden-md-and-down">&nbsp;病例管理</span>
         </el-menu-item>
       </el-menu>
-      <!-- <div class="line"></div> -->
     </el-col>
 
     <el-col :span="3">
@@ -40,7 +39,7 @@
         <span>
           <!-- {{picUrl}} -->
           <img :src="picUrl" alt="userpic" height="60px" style="border-radius: 30px;">
-          {{name}}
+          <!-- {{name}} -->
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item disabled>{{name}}</el-dropdown-item>
@@ -76,24 +75,17 @@ export default {
   created () {
     this.name = this.$cookie.get('name')
     this.picUrl = this.$cookie.get('picUrl')
-    this.$root.Bus.$on('updatedPic', value => {
-      this.picUrl = value
-      console.log('emit pic')
-    })
+    // this.$root.Bus.$on('updatedPic', value => {
+    //   var temp = 'https://www.ecnupet.cn/pet/' + value
+    //   console.log(temp)
+    //   this.setPicUrl(temp)
+    // })
     this.$root.Bus.$on('updatedName', value => {
-      // this.print(value)
       this.name = value
     })
   },
   methods: {
-    // handleSelect (key, keyPath) {
-    //   // console.log(typeof key, keyPath)
-    //   this.$router.push({
-    //     path: '/' + key
-    //   })
-    // },
     logout () {
-      // console.log('logout')
       this.$api.post(
         '/user/logout',
         null,
@@ -116,7 +108,11 @@ export default {
     },
     profile () {
       this.$router.push({path: '/profile'})
-    }
+    } // ,
+    // setPicUrl (value) {
+    //   this.pirUrl = value
+    //   console.log(this.pirUrl)
+    // }
   }
 }
 </script>
