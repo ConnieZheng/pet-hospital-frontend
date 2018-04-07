@@ -652,13 +652,13 @@ export default {
     },
 
     // facility
-    getAllFacilityList () {
+    getAllFacList () {
       this.$api.post(
         '/facility/all',
         null,
         response => { // status, facilityList[id, name, info, picture]
           if (response.status === 'success') {
-            this.allFacilityList = response.facilityList
+            this.allFacList = response.facilityList
           } else {
             this.$notify.error({
               title: '错误',
@@ -668,17 +668,17 @@ export default {
         }
       )
     },
-    getFacilityList (deptId) {
-      this.loadingFacilityDialog = true
+    getFacList (deptId) {
+      this.loadingFacDialog = true
       this.$api.post(
         '/department/facility/all',
         {id: deptId},
         response => { // status, status, facilityList[id, name, info, picture]
           if (response.status === 'success') {
-            this.facilityList = response.facilityList
-            this.loadingFacilityDialog = false
-            this.facilityList.forEach((facility, index) => {
-              this.selectedFacilityList.push(facility.id)
+            this.facList = response.facilityList
+            this.loadingFacDialog = false
+            this.facList.forEach((facility, index) => {
+              this.selectedFacList.push(facility.id)
             })
           } else {
             this.$notify.error({
@@ -689,15 +689,15 @@ export default {
         }
       )
     },
-    showFacilityDialog (id) {
-      this.facilityDialogVisible = true
+    showFacDialog (id) {
+      this.facDialogVisible = true
       this.operatingDept.id = id
-      this.getFacilityList(id)
+      this.getFacList(id)
     },
-    handleFacilityChange (value, direction, movedKeys) {
+    handleFacChange (value, direction, movedKeys) {
       // [1, 2] "left" [3]
       if (direction === 'right') {
-        this.loadingFacilityDialog = true
+        this.loadingFacDialog = true
         this.$api.post(
           '/department/facility/add',
           { // id, facilityList[]
@@ -706,7 +706,7 @@ export default {
           },
           response => { // status
             if (response.status === 'success') {
-              this.loadingFacilityDialog = false
+              this.loadingFacDialog = false
               this.$notify.success({
                 title: '成功',
                 message: '科室相关设备增加成功'
@@ -725,7 +725,7 @@ export default {
           }
         )
       } else {
-        this.loadingFacilityDialog = true
+        this.loadingFacDialog = true
         this.$api.post(
           '/department/facility/delete',
           { // id, facilityList[]
@@ -734,7 +734,7 @@ export default {
           },
           response => { // status
             if (response.status === 'success') {
-              this.loadingFacilityDialog = false
+              this.loadingFacDialog = false
               this.$notify.success({
                 title: '成功',
                 message: '科室相关设备删除成功'
@@ -755,32 +755,32 @@ export default {
       }
       console.log(value, direction, movedKeys)
     },
-    handleFacilityDialogClose (done) {
-      this.selectedFacilityList = []
+    handleFacDialogClose (done) {
+      this.selectedFacList = []
       done()
     },
-    handleFacilitySuccess (res, file) {
-      this.operatingFacility.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
+    handleFacSuccess (res, file) {
+      this.operatingFac.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
       this.$message.success('设备图片已成功上传至服务器~')
-      console.log('设备图片的URL为' + this.operatingFacility.picture)
+      console.log('设备图片的URL为' + this.operatingFac.picture)
     },
-    handleAddFacilityDialogClose (done) {
-      this.operatingFacility = {id: 0, name: '', info: '', picture: ''}
+    handleAddFacDialogClose (done) {
+      this.operatingFac = {id: 0, name: '', info: '', picture: ''}
       done()
     },
-    addFacility () {
+    addFac () {
       this.$api.post(
         '/facility/add',
-        this.operatingFacility,
+        this.operatingFac,
         response => { // status, id, name, info
           if (response.status === 'success') {
             this.$notify.success({
               title: '成功',
               message: '成功增加设备'
             })
-            this.addFacilityDialogVisible = false
-            this.operatingFacility = {id: 0, name: '', info: '', picture: ''}
-            this.getAllFacilityList()
+            this.addFacDialogVisible = false
+            this.operatingFac = {id: 0, name: '', info: '', picture: ''}
+            this.getAllFacList()
           } else if (response.status === 'inputFail') {
             this.$notify.error({
               title: '错误',

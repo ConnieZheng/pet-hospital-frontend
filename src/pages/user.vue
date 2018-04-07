@@ -61,16 +61,12 @@
         <template slot-scope="scope">
           <el-button-group>
           <el-button v-bind:disabled="isOperationDisabled('modifyUserPwd',scope.row.auth)" v-on:click="showModifyPwdDialog(scope.row.id, scope.row.userName)" type="primary" size="small" icon="el-icon-edit">重置密码</el-button>
-          <el-button v-bind:disabled="isOperationDisabled('modifyUserAuth',scope.row.auth)" @click="showModifyAuthDialog(scope.row.id, scope.row.userName, scope.row.auth)" type="primary" size="small" icon="el-icon-edit-outline
-">修改权限</el-button>
+          <el-button v-bind:disabled="isOperationDisabled('modifyUserAuth',scope.row.auth)" @click="showModifyAuthDialog(scope.row.id, scope.row.userName, scope.row.auth)" type="primary" size="small" icon="el-icon-edit-outline">修改权限</el-button>
           <el-button v-bind:disabled="isOperationDisabled('removeUser',scope.row.auth)" @click="showRemoveUserDialog(scope.row.id, scope.row.userName)" type="primary" size="small" icon="el-icon-delete">删除用户</el-button>
           </el-button-group>
         </template>
       </el-table-column>
     </el-table>
-
-    <el-row>
-    </el-row>
 
     <el-dialog
       title="修改权限"
@@ -108,7 +104,7 @@
       <el-form :model="operatingUser" label-width="80px" size="small" :rules="modifyUserPwdRule" ref="modifyUserPwdForm" label-position="left">
         <span>重置用户名为{{operatingUser.userName}}的用户密码为</span>
         <el-form-item label="新密码" prop="newPwd">
-          <el-input v-model="operatingUser.newPwd" clearable type="password"></el-input>
+          <el-input v-model="operatingUser.newPwd" clearable @keyup.native="operatingUser.newPwd=operatingUser.newPwd.replace(/[^\w\.\/]/ig,'')"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">

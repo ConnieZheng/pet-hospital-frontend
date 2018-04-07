@@ -49,8 +49,9 @@
       </form> -->
       <el-upload
         class="avatar-uploader"
-        action="https://www.ecnupet.cn/pet/file"
+        :action="this.$fileApi.getUploadUrl()"
         :show-file-list="false"
+        accept="image/*"
         :on-success="handleAvatarSuccess"
         :before-upload="beforeAvatarUpload">
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
@@ -118,7 +119,7 @@ export default {
   },
   computed: {
     imageUrl () { // 头像完整URL
-      if (this.image) return 'https://www.ecnupet.cn/pet/' + this.image
+      if (this.image) return this.$fileApi.getWebBaseUrl() + this.image
       else return ''
     }
   },
@@ -135,18 +136,6 @@ export default {
           this.invokeApiUpdate(2, {pwd: this.getMD5(this.opeatingUser.pwd)}, '密码，请使用新的密码登录')
         }
       })
-    },
-    modifyPic () { // 头像已上传至服务器，本函数用于将头像的webURL写入数据库
-      // if (this.invokeApiUpdate({pictureUrl: this.imageUrl}, '头像')) {
-      this.pictureUrl = this.imageUrl
-      this.$cookie.set('picUrl', this.pictureUrl, 0.25)
-
-      // this.$root.Bus.$emit('updatedPic', this.image)
-      location.reload()
-
-      this.image = ''
-      this.modifyPicUrlDialogVisible = false
-      // }
     },
     invokeApiUpdate (methodNo, param, toast) {
       if (methodNo === 1 && (param.userName.length < 6 || param.userName.length > 24)) {
@@ -175,29 +164,36 @@ export default {
               this.$router.push({
                 path: '/login'
               })
-            }
-          } else {
-            if (response.status === 'inputFail') {
-              this.$notify.error({
-                title: '错误',
-                message: '新的' + toast + '不能为空'
-              })
-            } else if (response.status === 'invalidInputFail') {
-              this.$notify.error({
-                title: '错误',
-                message: '禁止输入非法字符'
-              })
-            } else if (response.status === 'duplicateUsernameFail') {
-              this.$notify.error({
-                title: '错误',
-                message: '新的昵称已存在，请使用另一昵称'
-              })
             } else {
-              this.$notify.error({
-                title: '错误',
-                message: '修改失败，服务器出现问题，请稍后重试'
-              })
+              this.pictureUrl = this.imageUrl
+              this.$cookie.set('picUrl', this.pictureUrl, 0.25)
+
+              this.image = ''
+              this.modifyPicUrlDialogVisible = false
+
+              // this.$root.Bus.$emit('updatedPic', this.image)
+              location.reload()
             }
+          } else if (response.status === 'inputFail') {
+            this.$notify.error({
+              title: '错误',
+              message: '新的' + toast + '不能为空'
+            })
+          } else if (response.status === 'invalidInputFail') {
+            this.$notify.error({
+              title: '错误',
+              message: '禁止输入非法字符'
+            })
+          } else if (response.status === 'duplicateUsernameFail') {
+            this.$notify.error({
+              title: '错误',
+              message: '新的昵称已存在，请使用另一昵称'
+            })
+          } else {
+            this.$notify.error({
+              title: '错误',
+              message: '修改失败，服务器出现问题，请稍后重试'
+            })
           }
         }
       )
@@ -214,7 +210,7 @@ export default {
       this.image = res.webURL
       this.$message.success('新头像已成功上传至服务器~')
       // console.log(res.webURL)
-      this.modifyPic()
+      this.invokeApiUpdate(3, {pictureUrl: this.imageUrl}, '头像') // 头像已上传至服务器，本函数用于将头像的webURL写入数据库
     },
     beforeAvatarUpload (file) {
       const isLt4M = file.size / 1024 / 1024 < 4

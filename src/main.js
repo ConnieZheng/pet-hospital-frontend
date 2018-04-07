@@ -13,6 +13,7 @@ import 'element-ui/lib/theme-chalk/display.css'
 import '../static/css/font-awesome.min.css'
 // 引用API文件
 import api from './utils/api'
+import fileApi from './utils/fileApi'
 import cookie from './utils/cookie'
 
 import 'babel-polyfill'
@@ -20,6 +21,7 @@ import crypto from 'crypto'
 
 // 将API方法绑定到全局
 Vue.prototype.$api = api
+Vue.prototype.$fileApi = fileApi
 Vue.prototype.$cookie = cookie
 Vue.prototype.$crypto = crypto
 

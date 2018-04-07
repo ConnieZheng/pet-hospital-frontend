@@ -14,7 +14,7 @@
       </el-col>
 
       <el-col style="text-align: right" :span="16">
-        <el-input v-model="id" placeholder="题目编号" clearable style="width: 200px;"></el-input>
+        <el-input v-model="id" placeholder="题目编号" clearable style="width: 200px;" @keyup.native="id=id.replace(/[^\d]/ig,'')"></el-input>
         <el-input v-model="keyword" placeholder="题干/任意选项" clearable style="width: 200px;"></el-input>
         <el-button type="primary" v-on:click="getQuestionList" icon="el-icon-search">搜索试题</el-button>
       </el-col>
@@ -39,9 +39,12 @@
           </el-form>
         </template>
       </el-table-column>
-       <el-table-column prop="id" label="ID">
+       <el-table-column prop="id" label="题目编号">
       </el-table-column>
-      <el-table-column prop="stem" label="题干">
+      <el-table-column label="题干">
+        <template slot-scope="props">
+          <span>{{showStem(props.row.stem)}}</span>
+        </template>
       </el-table-column>
       <el-table-column prop="category" label="试题类别" :filters="categoryList" :filter-multiple="false" filter-placement="bottom-start" :filter-method="categoryFilterHandler" column-key="category">
       </el-table-column>
@@ -76,7 +79,7 @@
       width="50%">
       <el-form ref="modifyQuestionForm" :model="operatingQuestion" label-width="80px" :rules="questionRule" size="small"  label-position="left">
         <el-form-item label="题干" prop="stem">
-          <el-input v-model="operatingQuestion.stem"></el-input>
+          <el-input type="textarea" autosize clearable v-model="operatingQuestion.stem"></el-input>
         </el-form-item>
         <el-form-item inline label="类别" prop="category">
           <el-select v-model="operatingQuestion.category" filterable placeholder="请选择(支持搜索和输入新增)" allow-create style="width: 247.9px;" default-first-option>
@@ -123,7 +126,7 @@
       width="50%">
       <el-form ref="addQuestionForm" :model="operatingQuestion" label-width="80px" :rules="questionRule" size="small"  label-position="left">
         <el-form-item label="题干" prop="stem">
-          <el-input v-model="operatingQuestion.stem"/>
+          <el-input type="textarea" autosize clearable v-model="operatingQuestion.stem"/>
         </el-form-item>
         <el-form-item inline label="类别" prop="category">
           <el-select v-model="operatingQuestion.category" filterable placeholder="请选择(支持搜索和输入新增)" allow-create style="width: 247.9px;">
@@ -431,8 +434,12 @@ export default {
       done()
     },
     handleModifyDialogClose (done) {
-      this.$refs['modifyQuestionForm'].resetFields()
+      this.$refs['modifyQuestionForm'].resetFields() // 只会重置到打开dialog的样子
       done()
+    },
+    showStem (stem) {
+      if (stem.length >= 25) return stem.substr(0, 25) + '...'
+      else return stem
     }
   }
 }

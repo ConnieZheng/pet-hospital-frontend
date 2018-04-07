@@ -10,6 +10,7 @@ import Department from '@/pages/department'
 import Procedure from '@/pages/procedure'
 import Case from '@/pages/case'
 import Profile from '@/pages/profile'
+import Test from '@/pages/test'
 
 Vue.use(Router)
 
@@ -58,6 +59,10 @@ export default new Router({
       path: '/login',
       // name: 'Login',
       component: Login
+    }, {
+      path: '/test',
+      // name: 'Login',
+      component: Test
     }
   ]
 })
