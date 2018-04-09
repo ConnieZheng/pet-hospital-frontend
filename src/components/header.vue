@@ -27,10 +27,14 @@
           <i class="fa fa-hospital-o fa-lg"/>
           <span class="hidden-md-and-down">&nbsp;科室管理</span>
         </el-menu-item>
-        <el-menu-item index="/case">
-          <i class="fa fa-video-camera fa-lg"/>
-          <span class="hidden-md-and-down">&nbsp;病例管理</span>
-        </el-menu-item>
+        <el-submenu index="/case"><!-- 这里的index没有用，只是不放index的话，控制台会报错 -->
+          <template slot="title">
+            <i class="fa fa-video-camera fa-lg"/>
+            <span class="hidden-md-and-down">&nbsp;病例管理</span>
+          </template>
+          <el-menu-item index="/disease">病种管理</el-menu-item>
+          <el-menu-item index="/case">病例管理</el-menu-item>
+        </el-submenu>
       </el-menu>
     </el-col>
 
@@ -62,7 +66,6 @@
 </template>
 
 <script>
-// import axios from 'axios'
 export default {
   data () {
     return {
@@ -118,13 +121,6 @@ export default {
 </script>
 
 <style scoped>
-/* .el-header {
-  line-height: 60px;
-  color: #606266;
-}
-.bg-purple {
-  background: #d3dce6;
-} */
 .row-col-center {
   display: flex;
   flex-direction: row;

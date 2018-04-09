@@ -1,25 +1,13 @@
 <template>
-  <el-container direction="vertical" style="padding: 50px">
+  <el-container direction="vertical" style="padding: 20px 50px">
     <my-breadcrumb v-bind:index=4></my-breadcrumb>
 
     <el-row>
-      <el-col :span="2">
+      <el-col :span="12">
         <el-button type="primary" @click="addDeptDialogVisible = true" icon="el-icon-plus">增加科室</el-button>
       </el-col>
 
-      <el-col :span="19" class="row-col-center">
-        <el-pagination background
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[1, 5, 10]"
-        :page-size="pageSize"
-        layout="total, prev, pager, next, sizes"
-        :total="filteredDeptList.length">
-        </el-pagination>
-      </el-col>
-
-      <el-col :span="3">
+      <el-col :span="12" style="text-align: right">
         <el-input type="text" placeholder="科室名" v-model="name" @keyup.enter.native="getDeptList" style="width: 120px;">
           <i slot="prefix" class="el-input__icon el-icon-search"></i>
         </el-input>
@@ -31,7 +19,7 @@
         <template slot-scope="currentRowScope">
           <div style="display: flex; align-items: flex-start">
             <img v-if="currentRowScope.row.picture" :src="currentRowScope.row.picture" style="max-height: 300px; width: 45%; margin-right: 10px" :alt="currentRowScope.row.picture">
-            <div v-else style="max-height: 300px; width: 45%; margin-right: 10px">无科室照片</div>
+            <div v-else style="max-height: 300px; width: 45%; margin-right: 10px"><i>暂无科室照片</i></div>
             <div>
               <b style="margin: 30px">科室信息</b>
               <el-button type="primary" @click="showDrugDialog(currentRowScope.row.id)" size="small">查看相关药品</el-button>
@@ -51,24 +39,39 @@
           <el-tag :type="scope.row.role === 1 ? 'primary' : (scope.row.role === 2 ? 'success' : 'warning')" close-transition>{{showRole(scope.row.role)}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" fixed="right" width="240">
+      <el-table-column label="操作" fixed="right" width="350px">
         <template slot-scope="currentRowScope">
-          <el-button @click="showModifyDeptDialog(currentRowScope.row)" type="primary" size="small" icon="el-icon-delete">修改科室</el-button>
-          <el-button @click="removeDept(currentRowScope.row.id)" type="primary" size="small" icon="el-icon-delete">删除科室</el-button>
+          <el-button-group>
+            <el-button @click="showModifyDeptDialog(currentRowScope.row)" type="primary" size="medium" icon="el-icon-edit">修改科室</el-button>
+            <el-button @click="removeDept(currentRowScope.row.id)" type="primary" size="medium" icon="el-icon-delete">删除科室</el-button>
+          </el-button-group>
         </template>
       </el-table-column>
     </el-table>
 
+    <el-pagination background
+    @size-change="handleSizeChange"
+    @current-change="handleCurrentChange"
+    :current-page="currentPage"
+    :page-sizes="[5, 10]"
+    :page-size="pageSize"
+    layout="total, prev, pager, next, sizes"
+    :total="filteredDeptList.length"
+    class="row-col-center"
+    style="margin: 20px">
+    </el-pagination>
+
     <el-dialog title="增加科室"
       :visible.sync="addDeptDialogVisible"
       :before-close="handleAddDialogClose"
+      v-loading="loading"
       width="50%">
-      <el-form ref="addDeptForm" :model="operatingDept" label-width="80px" :rules="deptRule" size="small"  label-position="left">
+      <el-form ref="addDeptForm" :model="addingDept" label-width="80px" :rules="deptRule" size="small"  label-position="left">
         <el-form-item label="科室名" prop="name">
-          <el-input v-model="operatingDept.name"/>
+          <el-input v-model="addingDept.name"/>
         </el-form-item>
         <el-form-item inline label="角色" prop="role">
-          <el-select v-model="operatingDept.role" filterable placeholder="请选择(支持搜索)">
+          <el-select v-model="addingDept.role" filterable placeholder="请选择(支持搜索)">
             <el-option
               v-for="item in roleList"
               :key="item.value"
@@ -78,7 +81,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="科室信息" prop="info">
-          <el-input v-model="operatingDept.info"/>
+          <el-input v-model="addingDept.info"/>
         </el-form-item>
         <!-- https://www.ecnupet.cn/pet/file -->
         <el-form-item label="科室照片">
@@ -86,9 +89,10 @@
             class="avatar-uploader"
             action="http://111.231.62.36:8080/pet/file"
             :show-file-list="false"
-            :on-success="handleAvatarSuccess"
+            :on-progress="handleAddAvatarProgress"
+            :on-success="handleAddAvatarSuccess"
             :before-upload="beforeAvatarUpload">
-            <img v-if="this.operatingDept.picture" :src="this.operatingDept.picture" class="avatar">
+            <img v-if="this.addingDept.picture" :src="this.addingDept.picture" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-form-item>
@@ -100,14 +104,13 @@
 
     <el-dialog title="修改科室"
       :visible.sync="modifyDeptDialogVisible"
-      :before-close="handleModifyDialogClose"
       width="50%">
-      <el-form ref="modifyDeptForm" :model="operatingDept" label-width="80px" :rules="deptRule" size="small"  label-position="left">
+      <el-form ref="modifyDeptForm" :model="modifyingDept" label-width="80px" :rules="deptRule" size="small"  label-position="left">
         <el-form-item label="科室名" prop="name">
-          <el-input v-model="operatingDept.name"/>
+          <el-input v-model="modifyingDept.name"/>
         </el-form-item>
         <el-form-item inline label="角色" prop="role">
-          <el-select v-model="operatingDept.role" filterable placeholder="请选择(支持搜索)">
+          <el-select v-model="modifyingDept.role" filterable placeholder="请选择(支持搜索)">
             <el-option
               v-for="item in roleList"
               :key="item.value"
@@ -117,16 +120,16 @@
           </el-select>
         </el-form-item>
         <el-form-item label="科室信息" prop="info">
-          <el-input v-model="operatingDept.info"/>
+          <el-input v-model="modifyingDept.info"/>
         </el-form-item>
         <el-form-item label="科室照片">
           <el-upload
             class="avatar-uploader"
             action="http://111.231.62.36:8080/pet/file"
             :show-file-list="false"
-            :on-success="handleAvatarSuccess"
+            :on-success="handleModifyAvatarSuccess"
             :before-upload="beforeAvatarUpload">
-            <img v-if="this.operatingDept.picture" :src="this.operatingDept.picture" class="avatar">
+            <img v-if="this.modifyingDept.picture" :src="this.modifyingDept.picture" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-form-item>
@@ -263,7 +266,9 @@ export default {
           { min: 0, max: 255, message: '科室信息的合法长度为0-255个字符', trigger: 'change,blur' }
         ]
       },
-      operatingDept: {},
+      addingDept: {},
+      loading: false,
+      modifyingDept: {},
       roleList: [
         {text: '前台', value: 1},
         {text: '医助', value: 2},
@@ -315,7 +320,7 @@ export default {
   },
   created () {
     this.getDeptList()
-    this.resetOperatingDept()
+    // this.resetOperatingDept()
     this.getAllDrugList()
     this.getAllFacList()
   },
@@ -377,20 +382,23 @@ export default {
       const property = column['property'] // property就是prop属性
       return row[property] === value
     },
-    resetOperatingDept () {
-      this.operatingDept = {
+    resetAddingDept () {
+      this.addingDept = {
         id: 0,
         name: '',
         role: 1,
         info: '',
-        picture: '' // 111.231.62.36:8080/pet/img/70e48e31-ca48-4dd9-94d0-9cf3dcb520d72.jpg
+        picture: ''
       }
     },
-    handleAvatarSuccess (res, file) {
-      this.operatingDept.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
-      // this.operatingDept.picture = 'https://www.ecnupet.cn/pet/' + res.webURL
+    handleAddAvatarProgress (event, file, fileList) { // 文件上传时的钩子
+      this.loading = true
+    },
+    handleAddAvatarSuccess (res, file) {
+      this.addingDept.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
       this.$message.success('科室图片已成功上传至服务器~')
-      console.log('科室图片的URL为' + this.operatingDept.picture)
+      this.loading = false
+      console.log('科室图片的URL为' + this.addingDept.picture)
     },
     beforeAvatarUpload (file) {
       const isLt4M = file.size / 1024 / 1024 < 4
@@ -403,12 +411,17 @@ export default {
       }
       return isJPG && isLt4M
     },
+    handleModifyAvatarSuccess (res, file) {
+      this.modifyingDept.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
+      this.$message.success('科室图片已成功上传至服务器~')
+      console.log('科室图片的URL为' + this.modifyingDept.picture)
+    },
     addDept () {
       this.$refs['addDeptForm'].validate((valid) => {
         if (valid) {
           this.$api.post(
             '/department/add',
-            this.operatingDept,
+            this.addingDept,
             response => { // status, id, name, role, info, picture
               if (response.status === 'success') {
                 this.deptList.push(response) // TODO: check
@@ -417,7 +430,7 @@ export default {
                   message: '新科室ID为' + response.id
                 })
                 // this.$refs['addDeptForm'].resetFields()
-                this.resetOperatingDept()
+                this.resetAddingDept()
                 this.addDeptDialogVisible = false
               } else if (response.status === 'inputFail') {
                 this.$notify.error({
@@ -442,32 +455,26 @@ export default {
     },
     handleAddDialogClose (done) {
       this.$refs['addDeptForm'].resetFields()
-      this.resetOperatingDept()
+      this.resetAddingDept()
       done()
     },
     showModifyDeptDialog (row) {
       this.modifyDeptDialogVisible = true
-      this.operatingDept = row
-    },
-    handleModifyDialogClose (done) {
-      this.$refs['modifyDeptForm'].resetFields()
-      this.resetOperatingDept()
-      done()
+      this.modifyingDept = row
     },
     modifyDept () {
       this.$refs['modifyDeptForm'].validate((valid) => {
         if (valid) {
           this.$api.post(
             '/department/update',
-            this.operatingDept,
+            this.modifyingDept,
             response => { // status
               if (response.status === 'success') {
                 this.getDeptList()
                 this.$notify.success({
                   title: '成功',
-                  message: '已成功修改ID为' + this.operatingDept.id + '的科室'
+                  message: '已成功修改ID为' + this.modifyingDept.id + '的科室'
                 })
-                this.resetOperatingDept()
                 this.modifyDeptDialogVisible = false
               } else {
                 this.$notify.error({
@@ -541,7 +548,7 @@ export default {
     },
     showDrugDialog (id) {
       this.drugDialogVisible = true
-      this.operatingDept.id = id
+      this.modifyingDept.id = id
       this.getDrugList(id)
     },
     handleDrugChange (value, direction, movedKeys) {
@@ -551,7 +558,7 @@ export default {
         this.$api.post(
           '/department/drug/add',
           { // id, drugList[]
-            id: this.operatingDept.id,
+            id: this.modifyingDept.id,
             drugList: movedKeys
           },
           response => { // status
@@ -579,7 +586,7 @@ export default {
         this.$api.post(
           '/department/drug/delete',
           { // id, drugList[]
-            id: this.operatingDept.id,
+            id: this.modifyingDept.id,
             drugList: movedKeys
           },
           response => { // status
@@ -691,7 +698,7 @@ export default {
     },
     showFacDialog (id) {
       this.facDialogVisible = true
-      this.operatingDept.id = id
+      this.modifyingDept.id = id
       this.getFacList(id)
     },
     handleFacChange (value, direction, movedKeys) {
@@ -701,7 +708,7 @@ export default {
         this.$api.post(
           '/department/facility/add',
           { // id, facilityList[]
-            id: this.operatingDept.id,
+            id: this.modifyingDept.id,
             facilityList: movedKeys
           },
           response => { // status
@@ -729,7 +736,7 @@ export default {
         this.$api.post(
           '/department/facility/delete',
           { // id, facilityList[]
-            id: this.operatingDept.id,
+            id: this.modifyingDept.id,
             facilityList: movedKeys
           },
           response => { // status

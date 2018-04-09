@@ -5,10 +5,10 @@
 1. Login 2.1
 2. User management 2.1
 3. Question management 2.0
-4. Procedure management 1.0
+4. Procedure management 2.0
 5. Department management 2.0
-6. Case Management 0.1
-7. Profile 1.0
+6. Case Management 2.0
+7. Profile 2.0
 
 *2.x = ready for test*
 

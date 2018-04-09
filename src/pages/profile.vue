@@ -8,7 +8,9 @@
     <div class="row-col-center">
         <el-card>
           <div class="row-col-center" style="margin-bottom: 30px">
-            <img v-bind:src="pictureUrl" alt="userpic" height="175px" width="175px" style="border-radius: 60%;" @click="modifyPicUrlDialogVisible = true">
+            <el-tooltip effect="dark" content="点击修改头像" placement="right">
+              <img v-bind:src="pictureUrl" alt="userpic" height="175px" width="175px" style="border-radius: 60%;" @click="modifyPicUrlDialogVisible = true">
+            </el-tooltip>
           </div>
 
           <div class="row-col-center">
@@ -41,19 +43,18 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="修改头像" :visible.sync="modifyPicUrlDialogVisible" width="238px"
-    :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" class="row-col-center">
+    <el-dialog title="修改头像" :visible.sync="modifyPicUrlDialogVisible" width="30%">
       <!-- <form>
         <input type="file" @change="getFile($event)">
         <button @click="submitForm($event)">提交</button>
       </form> -->
-      <el-upload
-        class="avatar-uploader"
+      <el-upload class="row-col-center avatar-uploader"
         :action="this.$fileApi.getUploadUrl()"
         :show-file-list="false"
         accept="image/*"
-        :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
+        :before-upload="beforeAvatarUpload"
+        :on-progress="handleAvatarProgress"
+        :on-success="handleAvatarSuccess">
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
       </el-upload>
@@ -202,9 +203,8 @@ export default {
       this.$refs['pwdForm'].resetFields() // 包括reset this.operationUser.pwd
       done()
     },
-    handleClose2 (done) {
-      this.$refs['nameForm'].resetFields()
-      done()
+    handleAvatarProgress (event, file, fileList) { // 文件上传时的钩子
+      this.loading = true
     },
     handleAvatarSuccess (res, file) {
       this.image = res.webURL

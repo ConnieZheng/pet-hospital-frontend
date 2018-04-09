@@ -1,6 +1,5 @@
 <template>
-  <el-container direction="vertical" style="padding: 50px">
-    <!-- 引入elementui -->
+  <el-container direction="vertical" style="padding: 20px 50px">
     <my-breadcrumb v-bind:index=3></my-breadcrumb>
 
     <!-- domainContainer -->
@@ -34,12 +33,12 @@
             <el-tag :type="scope.row.roleId === 1 ? 'primary' : (scope.row.roleId === 2 ? 'success' : 'warning')" close-transition>{{showRole(scope.row.roleId)}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" fixed="right" width="450">
+        <el-table-column label="操作" fixed="right" width="350px">
           <template slot-scope="scope">
             <el-button-group>
               <el-button type="primary" size="medium" icon="el-icon-info" @click="showDomainDetail(scope.row.roleId, scope.row.domain)">查看详情</el-button>
-              <el-button type="primary" size="medium" icon="el-icon-delete" @click="showUpdateDomainDialog(scope.row.roleId, scope.row.domain)">修改流程基本信息</el-button>
-              <el-button type="primary" size="medium" icon="el-icon-delete" @click="deleteDomain(scope.row.roleId, scope.row.domain)">删除流程</el-button>
+              <el-button type="primary" size="medium" icon="el-icon-edit" @click="showUpdateDomainDialog(scope.row.roleId, scope.row.domain)">修改基本信息</el-button>
+              <el-button type="primary" size="medium" icon="el-icon-delete" @click="deleteDomain(scope.row.roleId, scope.row.domain)"></el-button>
             </el-button-group>
           </template>
         </el-table-column>
@@ -95,7 +94,7 @@
               </el-form-item>
               <el-form-item label="图片列表">
                 <a v-for="pic in props.row.pictureList" :key="pic.id" :href="pic.url" target="_Blank">
-                  <img :src="pic.url" alt="图片" style="width: 25%">
+                  <img :src="pic.url" alt="图片" style="width: 25%; max-height: 250px">
                 </a>
               </el-form-item>
               <el-form-item label="视频列表">
@@ -106,14 +105,14 @@
             </el-form>
           </template>
         </el-table-column>
-        <el-table-column prop="step" label="步骤号" width="75px"></el-table-column>
+        <el-table-column prop="step" label="步骤号" width="100px"></el-table-column>
         <el-table-column prop="stepName" label="步骤名" width="250px"></el-table-column>
         <el-table-column label="步骤详情">
           <template slot-scope="props">
             <span>{{showStepInfo(props.row.info)}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" fixed="right" width="250px">
+        <el-table-column label="操作" fixed="right" width="350px">
           <template slot-scope="scope">
             <el-button-group>
               <el-button type="primary" size="medium" icon="el-icon-arrow-up" :disabled="isOperationDisabled('up', scope.row.step)" @click="stepUp(scope.row.id)"></el-button>
@@ -165,8 +164,9 @@
           </el-upload>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button v-if="updateStepDialogPanel === 3" type="primary" @click="updateStep">确定</el-button>
-          <el-button v-else @click="next">下一步</el-button>
+          <el-button v-if="updateStepDialogPanel === 1" type="primary" @click="updateStep">确定</el-button>
+          <el-button v-if="updateStepDialogPanel !== 3" @click="next">下一步</el-button>
+          <el-button v-else @click="next">关闭</el-button>
         </span>
       </el-dialog>
 
@@ -476,7 +476,19 @@ export default {
       this.updatingStep.stepName = stepName
       this.updatingStep.info = info
       this.updatingStep.pictureList = pictureList
-      this.updatingStep.videoList = videoList
+      // this.updatingStep.videoList = videoList
+      // 因为video上传的饿了么组件需要一个name展示，所以手动添加一个name
+      console.log(videoList)
+      this.updatingStep.videoList = []
+      videoList.forEach((video, index) => {
+        video = {
+          id: video.id,
+          url: video.url,
+          name: '视频' + (index + 1)
+        }
+        this.updatingStep.videoList.push(video)
+      })
+      console.log(this.updatingStep.videoList)
     },
     deleteStep (id) {
       this.$api.post(
@@ -568,6 +580,10 @@ export default {
     },
     next () {
       this.updateStepDialogPanel++
+      if (this.updateStepDialogPanel === 4) {
+        this.updateStepDialogPanel = 1
+        this.updateStepDialogVisible = false
+      }
     },
     updateStep () { // 修改步骤的基本信息
       if (this.updatingStep.stepName === '') {
@@ -584,12 +600,12 @@ export default {
         response => { // status
           if (response.status === 'success') {
             this.showDomainDetail(this.operatingDomain.roleId, this.operatingDomain.domain)
-            this.$message.success('步骤修改成功')
-            this.updateStepDialogVisible = false
+            this.$message.success('步骤基本信息修改成功')
+            this.next()
           } else {
             this.$notify.error({
               title: '错误',
-              message: '步骤修改失败，请等待后重试'
+              message: '步骤基本信息修改失败，请等待后重试'
             })
           }
         }
@@ -674,11 +690,11 @@ export default {
         },
         response => { // status
           if (response.status === 'success') {
-            this.$message.success('图片成功删除')
+            this.$message.success('视频成功删除')
           } else {
             this.$notify.error({
               title: '错误',
-              message: '图片删除失败'
+              message: '视频删除失败'
             })
           }
         }

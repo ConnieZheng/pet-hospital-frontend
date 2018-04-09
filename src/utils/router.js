@@ -9,12 +9,14 @@ import Question from '@/pages/question'
 import Department from '@/pages/department'
 import Procedure from '@/pages/procedure'
 import Case from '@/pages/case'
+import Disease from '@/pages/disease'
 import Profile from '@/pages/profile'
-import Test from '@/pages/test'
-
+// import Test from '@/pages/test'
+import NotFound from '@/components/error'
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
@@ -46,6 +48,10 @@ export default new Router({
           component: Case
         },
         {
+          path: 'disease',
+          component: Disease
+        },
+        {
           path: 'profile',
           component: Profile
         }
@@ -59,10 +65,12 @@ export default new Router({
       path: '/login',
       // name: 'Login',
       component: Login
+    // }, {
+    //   path: '/test',
+    //   component: Test
     }, {
-      path: '/test',
-      // name: 'Login',
-      component: Test
+      path: '*',
+      component: NotFound
     }
   ]
 })

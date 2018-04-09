@@ -1,26 +1,14 @@
 <template>
-  <el-container direction="vertical" style="padding: 50px">
+  <el-container direction="vertical" style="padding: 20px 50px">
     <!-- 引入elementui -->
     <my-breadcrumb v-bind:index=1></my-breadcrumb>
 
     <el-row>
-      <el-col :span="2">
+      <el-col :span="12">
         <el-button type="primary" v-on:click="addUserDialogVisible = true" icon="el-icon-plus">增加用户</el-button>
       </el-col>
 
-      <el-col :span="19" class="row-col-center">
-        <el-pagination background
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[5, 10]"
-        :page-size="pageSize"
-        layout="total, prev, pager, next, sizes"
-        :total="filteredUserList.length">
-        </el-pagination>
-      </el-col>
-
-      <el-col :span="3">
+      <el-col :span="12" style="text-align: right">
         <el-form :inline="true" @submit.native.prevent>
           <el-form-item>
             <el-input v-model="nameKeyword" placeholder="用户名" style="width: 120px" clearable @keyup.enter.native="getUserList" @change="getUserList">
@@ -57,16 +45,28 @@
           <el-tag :type="scope.row.auth === 1 ? 'primary' : (scope.row.auth === 2 ? 'success' : 'warning')" close-transition>{{showAuth(scope.row.auth)}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" fixed="right" width="350">
+      <el-table-column label="操作" fixed="right" width="350px">
         <template slot-scope="scope">
           <el-button-group>
-          <el-button v-bind:disabled="isOperationDisabled('modifyUserPwd',scope.row.auth)" v-on:click="showModifyPwdDialog(scope.row.id, scope.row.userName)" type="primary" size="small" icon="el-icon-edit">重置密码</el-button>
-          <el-button v-bind:disabled="isOperationDisabled('modifyUserAuth',scope.row.auth)" @click="showModifyAuthDialog(scope.row.id, scope.row.userName, scope.row.auth)" type="primary" size="small" icon="el-icon-edit-outline">修改权限</el-button>
-          <el-button v-bind:disabled="isOperationDisabled('removeUser',scope.row.auth)" @click="showRemoveUserDialog(scope.row.id, scope.row.userName)" type="primary" size="small" icon="el-icon-delete">删除用户</el-button>
+            <el-button v-bind:disabled="isOperationDisabled('modifyUserPwd',scope.row.auth)" v-on:click="showModifyPwdDialog(scope.row.id, scope.row.userName)" type="primary" size="medium" icon="el-icon-edit">重置密码</el-button>
+            <el-button v-bind:disabled="isOperationDisabled('modifyUserAuth',scope.row.auth)" @click="showModifyAuthDialog(scope.row.id, scope.row.userName, scope.row.auth)" type="primary" size="medium" icon="el-icon-edit-outline">修改权限</el-button>
+            <el-button v-bind:disabled="isOperationDisabled('removeUser',scope.row.auth)" @click="showRemoveUserDialog(scope.row.id, scope.row.userName)" type="primary" size="medium" icon="el-icon-delete"></el-button>
           </el-button-group>
         </template>
       </el-table-column>
     </el-table>
+
+    <el-pagination background
+    @size-change="handleSizeChange"
+    @current-change="handleCurrentChange"
+    :current-page="currentPage"
+    :page-sizes="[5, 10]"
+    :page-size="pageSize"
+    layout="total, prev, pager, next, sizes"
+    :total="filteredUserList.length"
+    class="row-col-center"
+    style="margin: 20px">
+    </el-pagination>
 
     <el-dialog
       title="修改权限"

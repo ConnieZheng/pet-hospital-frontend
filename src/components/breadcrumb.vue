@@ -2,7 +2,9 @@
   <el-row>
     <el-breadcrumb separator="/" style="margin-bottom: 20px">
       <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <!-- TODO: index=6时，病例管理点击无反应 -->
       <el-breadcrumb-item>{{showPageName(index)}}</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="index === 6">病种管理</el-breadcrumb-item>
     </el-breadcrumb>
   </el-row>
 </template>
@@ -18,7 +20,7 @@ export default {
       if (index === 2) return '试题管理'
       if (index === 3) return '流程管理'
       if (index === 4) return '科室管理'
-      if (index === 5) return '病例管理'
+      if (index >= 5) return '病例管理'
     }
   }
 }
