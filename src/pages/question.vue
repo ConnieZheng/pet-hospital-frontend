@@ -170,11 +170,13 @@
       title="上传试题文件"
       :visible.sync="uploadQuestionDialogVisible"
       width="30%">
-      <a href="http://111.231.62.36:8080/pet/img/371465a9-2997-426f-967e-355414c759f0question_title.txt" target="_blank">试题文件样例1（含标题行）</a>
+      <a target="_blank" :href="exampleFileWithTitle">
+        试题文件样例1（含标题行）
+      </a>
       <br>
-      <a href="http://111.231.62.36:8080/pet/img/499a28e9-9022-470f-bd47-8d51e38f0c18questions_no_title.txt" target="_blank">试题文件样例2（无标题行）</a>
+      <a :href="exampleFileWithoutTitle" target="_blank">试题文件样例2（无标题行）</a>
       <el-upload accept=".txt"
-        action="/api/question/file"
+        :action="uploadQuestionUrl"
         :before-upload="beforeUploadFileUpload"
         :on-progress="handleUploadFileProgress"
         :on-success="handleUploadFileSuccess"
@@ -231,7 +233,10 @@ export default {
           { required: true, message: '请输入正确答案', trigger: 'change' }
         ]
       },
-      uploadQuestionDialogVisible: false
+      uploadQuestionDialogVisible: false,
+      exampleFileWithTitle: this.$fileApi.getWebBaseUrl() + '/img/371465a9-2997-426f-967e-355414c759f0question_title.txt',
+      exampleFileWithoutTitle: this.$fileApi.getWebBaseUrl() + '/img/499a28e9-9022-470f-bd47-8d51e38f0c18questions_no_title.txt',
+      uploadQuestionUrl: this.$api.getRootUrl() + '/question/file'
     }
   },
   created () {
@@ -278,7 +283,6 @@ export default {
         }
       }
 
-      // console.log(param)
       this.$api.post(
         '/question/filter',
         param,
@@ -332,7 +336,6 @@ export default {
       this.currentPage = currentPage
     },
     categoryFilterHandler (value, row, column) {
-      // console.log('xxx' + value)
       const property = column['property'] // property就是prop属性
       return row[property] === value
     },
@@ -448,7 +451,6 @@ export default {
       this.loading = true
     },
     handleUploadFileSuccess (res, file, fileList) {
-      console.log('success', res)
       if (res.status === 'success') {
         this.$message.success('文件已上传至服务器，重新获取试题列表中...')
         this.getQuestionList()

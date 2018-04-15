@@ -186,6 +186,7 @@
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
+          <el-alert title="相关图片和视频请在新增后再点击修改按钮" type="info" show-icon close-text="知道了"></el-alert>
           <el-button type="primary" @click="addStep">确定</el-button>
         </span>
       </el-dialog>
@@ -223,7 +224,7 @@ export default {
       updatingStep: {}, // 只包含(step)id, stepName, info
       addStepDialogVisible: false,
       updateStepDialogVisible: false,
-      updateStepDialogPanel: 1,
+      updateStepDialogPanel: 0,
       loadingUpdateStepDialog: false
     }
   },
@@ -478,7 +479,6 @@ export default {
       this.updatingStep.pictureList = pictureList
       // this.updatingStep.videoList = videoList
       // 因为video上传的饿了么组件需要一个name展示，所以手动添加一个name
-      console.log(videoList)
       this.updatingStep.videoList = []
       videoList.forEach((video, index) => {
         video = {
@@ -488,7 +488,6 @@ export default {
         }
         this.updatingStep.videoList.push(video)
       })
-      console.log(this.updatingStep.videoList)
     },
     deleteStep (id) {
       this.$api.post(
@@ -632,6 +631,7 @@ export default {
         response => { // status
           if (response.status === 'success') {
             this.$message.success('图片成功删除')
+            this.showDomainDetail(this.roleId, this.domain)
           } else {
             this.$notify.error({
               title: '错误',
@@ -643,7 +643,6 @@ export default {
     },
     handlePicProgress (event, file, fileList) { // 文件上传时的钩子
       this.loadingUpdateStepDialog = true
-      // console.log(event) // 进度条显示
     },
     handlePicSuccess (res, file, fileList) {
       this.$message.success('图片已成功上传至服务器，其URL正在写入数据库，请稍等~')
@@ -656,6 +655,7 @@ export default {
         response => { // status
           if (response.status === 'success') {
             this.$message.success('图片URL成功写入数据库')
+            this.showDomainDetail(this.roleId, this.domain)
           } else if (response.status === 'inputFail') {
             this.$notify.error({
               title: '错误',
@@ -691,6 +691,7 @@ export default {
         response => { // status
           if (response.status === 'success') {
             this.$message.success('视频成功删除')
+            this.showDomainDetail(this.roleId, this.domain)
           } else {
             this.$notify.error({
               title: '错误',
@@ -714,6 +715,7 @@ export default {
         response => { // status
           if (response.status === 'success') {
             this.$message.success('视频URL成功写入数据库')
+            this.showDomainDetail(this.roleId, this.domain)
           } else if (response.status === 'inputFail') {
             this.$notify.error({
               title: '错误',

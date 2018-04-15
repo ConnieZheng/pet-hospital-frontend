@@ -56,7 +56,6 @@ function apiAxios (method, url, params, success) {
     withCredentials: false
   })
     .then(function (res) {
-      // console.log('xxxx' + url)
       if (url !== '/user/login') {
         updateCookie('name', 0.25)
         updateCookie('auth', 0.25)
@@ -87,5 +86,8 @@ export default {
   },
   delete: function (url, params, success) {
     return apiAxios('DELETE', url, params, success)
+  },
+  getRootUrl: function () {
+    return root
   }
 }

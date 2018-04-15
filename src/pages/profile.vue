@@ -209,7 +209,6 @@ export default {
     handleAvatarSuccess (res, file) {
       this.image = res.webURL
       this.$message.success('新头像已成功上传至服务器~')
-      // console.log(res.webURL)
       this.invokeApiUpdate(3, {pictureUrl: this.imageUrl}, '头像') // 头像已上传至服务器，本函数用于将头像的webURL写入数据库
     },
     beforeAvatarUpload (file) {

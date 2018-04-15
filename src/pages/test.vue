@@ -22,6 +22,7 @@
       action="https://jsonplaceholder.typicode.com/posts/"
       :on-preview="handlePreview"
       :on-remove="handleRemove"
+      :on-progress="handleProgress"
       :before-remove="beforeRemove"
       multiple
       :limit="3"
@@ -52,6 +53,9 @@ export default {
     },
     beforeRemove (file, fileList) {
       return this.$confirm('确定移除？' + file.name)
+    },
+    handleProgress (event, file, fileList) { // 文件上传时的钩子
+      console.log(event) // 显示进度条
     }
   }
 }

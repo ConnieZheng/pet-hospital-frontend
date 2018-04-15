@@ -87,7 +87,7 @@
         <el-form-item label="科室照片">
           <el-upload
             class="avatar-uploader"
-            action="http://111.231.62.36:8080/pet/file"
+            :action="this.$fileApi.getUploadUrl()"
             :show-file-list="false"
             :on-progress="handleAddAvatarProgress"
             :on-success="handleAddAvatarSuccess"
@@ -125,7 +125,7 @@
         <el-form-item label="科室照片">
           <el-upload
             class="avatar-uploader"
-            action="http://111.231.62.36:8080/pet/file"
+            :action="this.$fileApi.getUploadUrl()"
             :show-file-list="false"
             :on-success="handleModifyAvatarSuccess"
             :before-upload="beforeAvatarUpload">
@@ -174,7 +174,7 @@
         <el-form-item label="药品照片">
           <el-upload
             class="avatar-uploader"
-            action="http://111.231.62.36:8080/pet/file"
+            :action="this.$fileApi.getUploadUrl()"
             :show-file-list="false"
             :on-success="handleDrugSuccess"
             :before-upload="beforeAvatarUpload">
@@ -223,7 +223,7 @@
         <el-form-item label="设备照片">
           <el-upload
             class="avatar-uploader"
-            action="http://111.231.62.36:8080/pet/file"
+            :action="this.$fileApi.getUploadUrl()"
             :show-file-list="false"
             :on-success="handleFacSuccess"
             :before-upload="beforeAvatarUpload">
@@ -395,10 +395,9 @@ export default {
       this.loading = true
     },
     handleAddAvatarSuccess (res, file) {
-      this.addingDept.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
+      this.addingDept.picture = this.$fileApi.getWebBaseUrl() + res.webURL
       this.$message.success('科室图片已成功上传至服务器~')
       this.loading = false
-      console.log('科室图片的URL为' + this.addingDept.picture)
     },
     beforeAvatarUpload (file) {
       const isLt4M = file.size / 1024 / 1024 < 4
@@ -412,9 +411,8 @@ export default {
       return isJPG && isLt4M
     },
     handleModifyAvatarSuccess (res, file) {
-      this.modifyingDept.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
+      this.modifyingDept.picture = this.$fileApi.getWebBaseUrl() + res.webURL
       this.$message.success('科室图片已成功上传至服务器~')
-      console.log('科室图片的URL为' + this.modifyingDept.picture)
     },
     addDept () {
       this.$refs['addDeptForm'].validate((valid) => {
@@ -610,16 +608,14 @@ export default {
           }
         )
       }
-      console.log(value, direction, movedKeys)
     },
     handleDrugDialogClose (done) {
       this.selectedDrugList = []
       done()
     },
     handleDrugSuccess (res, file) {
-      this.operatingDrug.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
+      this.operatingDrug.picture = this.$fileApi.getWebBaseUrl() + res.webURL
       this.$message.success('药品图片已成功上传至服务器~')
-      console.log('药品图片的URL为' + this.operatingDrug.picture)
     },
     handleAddDrugDialogClose (done) {
       this.operatingDrug = {id: 0, name: '', info: '', picture: ''}
@@ -760,16 +756,14 @@ export default {
           }
         )
       }
-      console.log(value, direction, movedKeys)
     },
     handleFacDialogClose (done) {
       this.selectedFacList = []
       done()
     },
     handleFacSuccess (res, file) {
-      this.operatingFac.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
+      this.operatingFac.picture = this.$fileApi.getWebBaseUrl() + res.webURL
       this.$message.success('设备图片已成功上传至服务器~')
-      console.log('设备图片的URL为' + this.operatingFac.picture)
     },
     handleAddFacDialogClose (done) {
       this.operatingFac = {id: 0, name: '', info: '', picture: ''}

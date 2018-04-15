@@ -237,6 +237,7 @@ export default {
           if (response.status === 'success') {
             this.$message.success('病例基本信息修改成功')
             this.getCaseList()
+            this.updateCaseDialogVisible = false
           } else {
             this.$notify.error({
               title: '错误',

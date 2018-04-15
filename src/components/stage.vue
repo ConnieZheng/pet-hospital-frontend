@@ -191,7 +191,6 @@ export default {
       return isImage && isLt4M
     },
     handlePicRemove (file, fileList) {
-      console.log('handleRemove', file, fileList)
       this.$api.post(
         '/case/picture/delete',
         { // id
@@ -211,7 +210,6 @@ export default {
     },
     handlePicProgress (event, file, fileList) { // 文件上传时的钩子
       this.loading = true
-      // console.log(event) // 进度条显示
     },
     handlePicSuccess (res, file, fileList) {
       this.$message.success('图片已成功上传至服务器，其URL正在写入数据库，请稍等~')

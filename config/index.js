@@ -14,7 +14,7 @@ module.exports = {
       '*': {
         target: 'http://localhost:8080',
         // secure: false,
-        // changeOrigin: false,
+        // changeOrigin: false, // 是否跨域
         // filter: function(pathname, req){
         //   return pathname.match('^/api')
         // },
@@ -62,8 +62,7 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: './', // origin:'/'
-
+    assetsPublicPath: '/', // origin:'/'
     /**
      * Source Maps
      */
