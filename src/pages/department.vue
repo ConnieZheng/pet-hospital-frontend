@@ -3,18 +3,18 @@
     <my-breadcrumb v-bind:index=4></my-breadcrumb>
 
     <el-row>
-      <el-col :span="12">
+      <!-- <el-col :span="12">
         <el-button type="primary" @click="addDeptDialogVisible = true" icon="el-icon-plus">增加科室</el-button>
-      </el-col>
+      </el-col> -->
 
-      <el-col :span="12" style="text-align: right">
+      <el-col :span="24" style="text-align: right">
         <el-input type="text" placeholder="科室名" v-model="name" @keyup.enter.native="getDeptList" style="width: 120px;">
           <i slot="prefix" class="el-input__icon el-icon-search"></i>
         </el-input>
       </el-col>
     </el-row>
 
-    <el-table stripe :data="filteredDeptList.slice((currentPage-1)*pageSize,currentPage*pageSize)" @filter-change="roleFilterChange">
+    <el-table style="flex: inherit" stripe :data="filteredDeptList.slice((currentPage-1)*pageSize,currentPage*pageSize)" @filter-change="roleFilterChange">
       <el-table-column type="expand">
         <template slot-scope="currentRowScope">
           <div style="display: flex; align-items: flex-start">
@@ -34,17 +34,18 @@
       </el-table-column>
       <el-table-column prop="name" label="科室名">
       </el-table-column>
-      <el-table-column prop="role" label="角色" :filters="roleList" :filter-multiple="false" filter-placement="bottom-start" :filter-method="roleFilterHandler" column-key="role">
+      <el-table-column prop="role" label="角色" :filters="roleList" :filter-multiple="false" filter-placement="bottom" :filter-method="roleFilterHandler" column-key="role">
         <template slot-scope="scope">
           <el-tag :type="scope.row.role === 1 ? 'primary' : (scope.row.role === 2 ? 'success' : 'warning')" close-transition>{{showRole(scope.row.role)}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" fixed="right" width="350px">
         <template slot-scope="currentRowScope">
-          <el-button-group>
+          <el-button @click="showModifyDeptDialog(currentRowScope.row)" type="primary" size="medium" icon="el-icon-edit">修改科室</el-button>
+          <!-- <el-button-group>
             <el-button @click="showModifyDeptDialog(currentRowScope.row)" type="primary" size="medium" icon="el-icon-edit">修改科室</el-button>
             <el-button @click="removeDept(currentRowScope.row.id)" type="primary" size="medium" icon="el-icon-delete">删除科室</el-button>
-          </el-button-group>
+          </el-button-group> -->
         </template>
       </el-table-column>
     </el-table>
@@ -61,7 +62,7 @@
     style="margin: 20px">
     </el-pagination>
 
-    <el-dialog title="增加科室"
+    <!-- <el-dialog title="增加科室"
       :visible.sync="addDeptDialogVisible"
       :before-close="handleAddDialogClose"
       v-loading="loading"
@@ -81,13 +82,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="科室信息" prop="info">
-          <el-input v-model="addingDept.info"/>
+          <el-input v-model="addingDept.info" type="textarea"/>
         </el-form-item>
-        <!-- https://www.ecnupet.cn/pet/file -->
         <el-form-item label="科室照片">
           <el-upload
             class="avatar-uploader"
-            action="http://111.231.62.36:8080/pet/file"
+            :action="this.$fileApi.getUploadUrl()"
             :show-file-list="false"
             :on-progress="handleAddAvatarProgress"
             :on-success="handleAddAvatarSuccess"
@@ -100,14 +100,14 @@
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="addDept">确定</el-button>
       </span>
-    </el-dialog>
+    </el-dialog> -->
 
     <el-dialog title="修改科室"
       :visible.sync="modifyDeptDialogVisible"
       width="50%">
       <el-form ref="modifyDeptForm" :model="modifyingDept" label-width="80px" :rules="deptRule" size="small"  label-position="left">
         <el-form-item label="科室名" prop="name">
-          <el-input v-model="modifyingDept.name"/>
+          <el-input v-model="modifyingDept.name" disabled="true"/>
         </el-form-item>
         <el-form-item inline label="角色" prop="role">
           <el-select v-model="modifyingDept.role" filterable placeholder="请选择(支持搜索)">
@@ -120,18 +120,20 @@
           </el-select>
         </el-form-item>
         <el-form-item label="科室信息" prop="info">
-          <el-input v-model="modifyingDept.info"/>
+          <el-input v-model="modifyingDept.info" type="textarea"/>
         </el-form-item>
         <el-form-item label="科室照片">
-          <el-upload
-            class="avatar-uploader"
-            action="http://111.231.62.36:8080/pet/file"
-            :show-file-list="false"
-            :on-success="handleModifyAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
-            <img v-if="this.modifyingDept.picture" :src="this.modifyingDept.picture" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
+          <el-tooltip effect="dark" content="点击修改科室照片" placement="left">
+            <el-upload
+              class="avatar-uploader"
+              :action="this.$fileApi.getUploadUrl()"
+              :show-file-list="false"
+              :on-success="handleModifyAvatarSuccess"
+              :before-upload="beforeAvatarUpload">
+              <img v-if="this.modifyingDept.picture" :src="this.modifyingDept.picture" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </el-tooltip>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -168,13 +170,13 @@
           <el-input v-model="operatingDrug.name"/>
         </el-form-item>
         <el-form-item label="药品信息" prop="info">
-          <el-input v-model="operatingDrug.info"/>
+          <el-input v-model="operatingDrug.info" type="textarea"/>
         </el-form-item>
         <!-- https://www.ecnupet.cn/pet/file -->
         <el-form-item label="药品照片">
           <el-upload
             class="avatar-uploader"
-            action="http://111.231.62.36:8080/pet/file"
+            :action="this.$fileApi.getUploadUrl()"
             :show-file-list="false"
             :on-success="handleDrugSuccess"
             :before-upload="beforeAvatarUpload">
@@ -217,13 +219,13 @@
           <el-input v-model="operatingFac.name"/>
         </el-form-item>
         <el-form-item label="设备信息" prop="info">
-          <el-input v-model="operatingFac.info"/>
+          <el-input v-model="operatingFac.info" type="textarea"/>
         </el-form-item>
         <!-- https://www.ecnupet.cn/pet/file -->
         <el-form-item label="设备照片">
           <el-upload
             class="avatar-uploader"
-            action="http://111.231.62.36:8080/pet/file"
+            :action="this.$fileApi.getUploadUrl()"
             :show-file-list="false"
             :on-success="handleFacSuccess"
             :before-upload="beforeAvatarUpload">
@@ -323,6 +325,7 @@ export default {
     // this.resetOperatingDept()
     this.getAllDrugList()
     this.getAllFacList()
+    this.$root.Bus.$emit('updateIndex', '/department')
   },
   computed: {
     filteredDeptList () {
@@ -395,10 +398,9 @@ export default {
       this.loading = true
     },
     handleAddAvatarSuccess (res, file) {
-      this.addingDept.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
+      this.addingDept.picture = this.$fileApi.getWebBaseUrl() + res.webURL
       this.$message.success('科室图片已成功上传至服务器~')
       this.loading = false
-      console.log('科室图片的URL为' + this.addingDept.picture)
     },
     beforeAvatarUpload (file) {
       const isLt4M = file.size / 1024 / 1024 < 4
@@ -412,9 +414,8 @@ export default {
       return isJPG && isLt4M
     },
     handleModifyAvatarSuccess (res, file) {
-      this.modifyingDept.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
+      this.modifyingDept.picture = this.$fileApi.getWebBaseUrl() + res.webURL
       this.$message.success('科室图片已成功上传至服务器~')
-      console.log('科室图片的URL为' + this.modifyingDept.picture)
     },
     addDept () {
       this.$refs['addDeptForm'].validate((valid) => {
@@ -610,16 +611,14 @@ export default {
           }
         )
       }
-      console.log(value, direction, movedKeys)
     },
     handleDrugDialogClose (done) {
       this.selectedDrugList = []
       done()
     },
     handleDrugSuccess (res, file) {
-      this.operatingDrug.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
+      this.operatingDrug.picture = this.$fileApi.getWebBaseUrl() + res.webURL
       this.$message.success('药品图片已成功上传至服务器~')
-      console.log('药品图片的URL为' + this.operatingDrug.picture)
     },
     handleAddDrugDialogClose (done) {
       this.operatingDrug = {id: 0, name: '', info: '', picture: ''}
@@ -760,16 +759,14 @@ export default {
           }
         )
       }
-      console.log(value, direction, movedKeys)
     },
     handleFacDialogClose (done) {
       this.selectedFacList = []
       done()
     },
     handleFacSuccess (res, file) {
-      this.operatingFac.picture = 'http://111.231.62.36:8080/pet/' + res.webURL
+      this.operatingFac.picture = this.$fileApi.getWebBaseUrl() + res.webURL
       this.$message.success('设备图片已成功上传至服务器~')
-      console.log('设备图片的URL为' + this.operatingFac.picture)
     },
     handleAddFacDialogClose (done) {
       this.operatingFac = {id: 0, name: '', info: '', picture: ''}

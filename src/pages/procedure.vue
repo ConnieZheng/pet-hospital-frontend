@@ -26,7 +26,7 @@
         </el-col>
       </el-row>
 
-      <el-table stripe :data="domainList.slice((currentPage-1)*pageSize, currentPage*pageSize)" key="domainTable">
+      <el-table style="flex: inherit" stripe :data="domainList.slice((currentPage-1)*pageSize, currentPage*pageSize)" key="domainTable">
         <el-table-column prop="domain" label="流程名"></el-table-column>
         <el-table-column prop="roleId" label="角色名">
           <template slot-scope="scope">
@@ -85,7 +85,7 @@
         </el-col>
       </el-row>
 
-      <el-table stripe :data="stepList.slice((currentPage-1)*pageSize, currentPage*pageSize)" key="stepTable">
+      <el-table style="flex: inherit" stripe :data="stepList.slice((currentPage-1)*pageSize, currentPage*pageSize)" key="stepTable">
         <el-table-column type="expand">
           <template slot-scope="props">
             <el-form label-position="top">
@@ -94,12 +94,12 @@
               </el-form-item>
               <el-form-item label="图片列表">
                 <a v-for="pic in props.row.pictureList" :key="pic.id" :href="pic.url" target="_Blank">
-                  <img :src="pic.url" alt="图片" style="width: 25%; max-height: 250px">
+                  <img :src="pic.url" alt="图片" style="width: 20%; height: 200px; margin: 10px">
                 </a>
               </el-form-item>
               <el-form-item label="视频列表">
                  <a v-for="video in props.row.videoList" :key="video.id" :href="video.url" target="_Blank">
-                  <video :src="video.url" alt="视频" width="25%" controls="controls"></video>
+                  <video :src="video.url" alt="视频" style="width: 20%; height: 200px; margin: 10px" controls="controls"></video>
                 </a>
               </el-form-item>
             </el-form>
@@ -134,18 +134,19 @@
           <el-step title="视频列表" icon="el-icon-caret-right"></el-step>
         </el-steps>
         <el-form>
-          <el-form-item label="步骤名" v-if="updateStepDialogPanel === 1">
+          <el-form-item label="步骤名" v-if="updateStepDialogPanel === 0">
             <el-input type="text" clearable v-model="updatingStep.stepName" :maxlength="255"></el-input>
           </el-form-item>
-          <el-form-item label="步骤详情" v-if="updateStepDialogPanel === 1">
+          <el-form-item label="步骤详情" v-if="updateStepDialogPanel === 0">
             <el-input type="textarea" autosize clearable v-model="updatingStep.info" :maxlength="255"></el-input>
           </el-form-item>
-          <el-upload ref="uploadedPictures" v-else-if="updateStepDialogPanel === 2" style="margin-top: 20px"
+          <el-upload ref="uploadedPictures" v-else-if="updateStepDialogPanel === 1" style="margin-top: 20px"
             :action="this.$fileApi.getUploadUrl()"
             list-type="picture-card"
             accept="image/*"
             :file-list="updatingStep.pictureList"
             :before-upload="beforePicUpload"
+            :on-preview="handlePictureCardPreview"
             :on-progress="handlePicProgress"
             :on-success="handlePicSuccess"
             :on-remove="handlePicRemove">
@@ -164,10 +165,14 @@
           </el-upload>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button v-if="updateStepDialogPanel === 1" type="primary" @click="updateStep">确定</el-button>
-          <el-button v-if="updateStepDialogPanel !== 3" @click="next">下一步</el-button>
+          <el-button v-if="updateStepDialogPanel === 0" type="primary" @click="updateStep">确定</el-button>
+          <el-button v-if="updateStepDialogPanel !== 2" @click="next">下一步</el-button>
           <el-button v-else @click="next">关闭</el-button>
         </span>
+      </el-dialog>
+
+      <el-dialog :visible.sync="dialogVisible">
+        <img width="100%" :src="dialogImageUrl" alt="">
       </el-dialog>
 
       <el-dialog title="插入步骤"
@@ -186,6 +191,7 @@
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
+          <el-alert title="相关图片和视频请在新增后再点击修改按钮" type="info" show-icon close-text="知道了"></el-alert>
           <el-button type="primary" @click="addStep">确定</el-button>
         </span>
       </el-dialog>
@@ -223,14 +229,17 @@ export default {
       updatingStep: {}, // 只包含(step)id, stepName, info
       addStepDialogVisible: false,
       updateStepDialogVisible: false,
-      updateStepDialogPanel: 1,
-      loadingUpdateStepDialog: false
+      updateStepDialogPanel: 0,
+      loadingUpdateStepDialog: false,
+      dialogImageUrl: '',
+      dialogVisible: false
     }
   },
   created () {
     this.resetOperatingDomain()
     this.resetAddingStep()
     this.getDomainList()
+    this.$root.Bus.$emit('updateIndex', '/procedure')
   },
   methods: {
     // display
@@ -248,8 +257,12 @@ export default {
     switchContainer (option) { // 重置分页参数
       if (option === -1) {
         this.domainContainerVisible = true // 后退到domain
+        this.getDomainList()
         this.resetOperatingDomain()
-      } else this.domainContainerVisible = false // 前进到step
+      } else {
+        this.domainContainerVisible = false // 前进到step
+        this.domainList = {}
+      }
       this.currentPage = 1
       this.pageSize = 5
     },
@@ -289,26 +302,11 @@ export default {
     },
     showDomainDetail (roleId, domain) {
       this.switchContainer(1) // 主动跳转到流程详情页
-      // this.stepList = this.zyyStepList()
 
       this.operatingDomain.roleId = roleId
       this.operatingDomain.domain = domain
 
-      this.$api.post(
-        '/procedure/step/all',
-        {roleId: roleId, domain: domain},
-        response => { // status, stepList[id, roleId, domain, step, stepName, info，pictureList[picture对象], videoList[video对象]]
-          if (response.status === 'success') {
-            this.stepList = response.stepList
-            this.stepList.sort(this.stepCompare) // 按照step由小到大排序
-          } else {
-            this.$notify.error({
-              title: '错误',
-              message: '获取步骤列表失败，请等待后重试'
-            })
-          }
-        }
-      )
+      this.getStepList()
     },
     showUpdateDomainDialog (roleId, domain) {
       this.updateDomainDialogVisible = true
@@ -371,6 +369,24 @@ export default {
     stepCompare (a, b) {
       return a.step - b.step
     },
+    getStepList () {
+      // this.stepList = this.zyyStepList()
+      this.$api.post(
+        '/procedure/step/all',
+        {roleId: this.operatingDomain.roleId, domain: this.operatingDomain.domain},
+        response => { // status, stepList[id, roleId, domain, step, stepName, info，pictureList[picture对象], videoList[video对象]]
+          if (response.status === 'success') {
+            this.stepList = response.stepList
+            this.stepList.sort(this.stepCompare) // 按照step由小到大排序
+          } else {
+            this.$notify.error({
+              title: '错误',
+              message: '获取步骤列表失败，请等待后重试'
+            })
+          }
+        }
+      )
+    },
     showStepInfo (info) {
       if (info.length > 40) return info.substr(0, 40) + '...'
       else return info
@@ -407,7 +423,7 @@ export default {
         },
         response => { // status
           if (response.status === 'success') {
-            this.showDomainDetail(this.operatingDomain.roleId, this.operatingDomain.domain)
+            this.getStepList()
             this.resetAddingStep()
             this.$message.success('步骤插入成功')
             this.addStepDialogVisible = false
@@ -442,7 +458,7 @@ export default {
         {id: id},
         response => { // status
           if (response.status === 'success') {
-            this.showDomainDetail(this.operatingDomain.roleId, this.operatingDomain.domain)
+            this.getStepList()
             this.$message.success('步骤上移成功')
           } else {
             this.$notify.error({
@@ -459,7 +475,7 @@ export default {
         {id: id},
         response => { // status
           if (response.status === 'success') {
-            this.showDomainDetail(this.operatingDomain.roleId, this.operatingDomain.domain)
+            this.getStepList()
             this.$message.success('步骤下移成功')
           } else {
             this.$notify.error({
@@ -478,7 +494,6 @@ export default {
       this.updatingStep.pictureList = pictureList
       // this.updatingStep.videoList = videoList
       // 因为video上传的饿了么组件需要一个name展示，所以手动添加一个name
-      console.log(videoList)
       this.updatingStep.videoList = []
       videoList.forEach((video, index) => {
         video = {
@@ -488,7 +503,6 @@ export default {
         }
         this.updatingStep.videoList.push(video)
       })
-      console.log(this.updatingStep.videoList)
     },
     deleteStep (id) {
       this.$api.post(
@@ -496,7 +510,7 @@ export default {
         {id: id},
         response => { // status
           if (response.status === 'success') {
-            this.showDomainDetail(this.operatingDomain.roleId, this.operatingDomain.domain)
+            this.getStepList()
             this.$message.success('步骤删除成功')
           } else {
             this.$notify.error({
@@ -575,13 +589,13 @@ export default {
       ]
     },
     handleClose2 (done) { // 修改步骤
-      this.updateStepDialogPanel = 1
+      this.updateStepDialogPanel = 0
       done()
     },
     next () {
       this.updateStepDialogPanel++
-      if (this.updateStepDialogPanel === 4) {
-        this.updateStepDialogPanel = 1
+      if (this.updateStepDialogPanel === 3) {
+        this.updateStepDialogPanel = 0
         this.updateStepDialogVisible = false
       }
     },
@@ -599,7 +613,7 @@ export default {
         },
         response => { // status
           if (response.status === 'success') {
-            this.showDomainDetail(this.operatingDomain.roleId, this.operatingDomain.domain)
+            this.getStepList()
             this.$message.success('步骤基本信息修改成功')
             this.next()
           } else {
@@ -623,7 +637,6 @@ export default {
       return isImage && isLt4M
     },
     handlePicRemove (file, fileList) {
-      console.log('handleRemove', file, fileList)
       this.$api.post(
         '/procedure/picture/delete',
         { // stepId, url
@@ -632,6 +645,7 @@ export default {
         response => { // status
           if (response.status === 'success') {
             this.$message.success('图片成功删除')
+            this.getStepList()
           } else {
             this.$notify.error({
               title: '错误',
@@ -643,7 +657,6 @@ export default {
     },
     handlePicProgress (event, file, fileList) { // 文件上传时的钩子
       this.loadingUpdateStepDialog = true
-      // console.log(event) // 进度条显示
     },
     handlePicSuccess (res, file, fileList) {
       this.$message.success('图片已成功上传至服务器，其URL正在写入数据库，请稍等~')
@@ -656,6 +669,8 @@ export default {
         response => { // status
           if (response.status === 'success') {
             this.$message.success('图片URL成功写入数据库')
+            this.getStepList()
+            file.id = response.id // for /picture/delete
           } else if (response.status === 'inputFail') {
             this.$notify.error({
               title: '错误',
@@ -671,6 +686,11 @@ export default {
         }
       )
     },
+    handlePictureCardPreview (file) { // 图片放大预览
+      this.dialogImageUrl = file.url
+      this.dialogVisible = true
+    },
+
     beforeVideoUpload (file) {
       const isLt50M = file.size / 1024 / 1024 < 50
       const isVideo = file.type.indexOf('video') !== -1
@@ -691,6 +711,7 @@ export default {
         response => { // status
           if (response.status === 'success') {
             this.$message.success('视频成功删除')
+            this.getStepList()
           } else {
             this.$notify.error({
               title: '错误',
@@ -714,6 +735,8 @@ export default {
         response => { // status
           if (response.status === 'success') {
             this.$message.success('视频URL成功写入数据库')
+            this.getStepList()
+            file.id = response.id
           } else if (response.status === 'inputFail') {
             this.$notify.error({
               title: '错误',

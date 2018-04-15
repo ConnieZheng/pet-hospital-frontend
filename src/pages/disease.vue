@@ -26,9 +26,9 @@
         </el-form>
       </el-col>
 
-   </el-row>
+    </el-row>
 
-    <el-table stripe :data="diseaseList.slice((currentPage-1)*pageSize,currentPage*pageSize)">
+    <el-table style="flex: inherit" stripe :data="diseaseList.slice((currentPage-1)*pageSize,currentPage*pageSize)">
       <el-table-column prop="name" label="病名"></el-table-column>
       <el-table-column prop="category" label="类别"></el-table-column>
       <el-table-column label="操作" fixed="right" width="350px">
@@ -104,6 +104,7 @@ export default {
     this.getDiseaseList()
     this.getCategoryList()
     this.resetAddingDisease()
+    this.$root.Bus.$emit('updateIndex', '/disease')
   },
   methods: {
     // display

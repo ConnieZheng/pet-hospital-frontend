@@ -1,6 +1,6 @@
 <template>
   <el-container direction="vertical" style="padding: 20px 50px">
-    <my-breadcrumb v-bind:index=3></my-breadcrumb>
+    <my-breadcrumb v-bind:index=5></my-breadcrumb>
 
     <!-- CaseListContainer -->
     <el-container v-if="caseListContainerVisible" direction="vertical">
@@ -30,7 +30,7 @@
 
       </el-row>
 
-      <el-table stripe :data="caseList.slice((currentPage-1)*pageSize,currentPage*pageSize)">
+      <el-table style="flex: inherit" stripe :data="caseList.slice((currentPage-1)*pageSize,currentPage*pageSize)">
         <el-table-column prop="name" label="病例名"></el-table-column>
         <el-table-column prop="diseaseName" label="病名"></el-table-column>
         <el-table-column prop="categoryName" label="类别"></el-table-column>
@@ -130,6 +130,7 @@ export default {
     this.getDiseaseList()
     this.getCaseList()
     this.resetAddingCase()
+    this.$root.Bus.$emit('updateIndex', '/case')
   },
   methods: {
     // display
@@ -237,6 +238,7 @@ export default {
           if (response.status === 'success') {
             this.$message.success('病例基本信息修改成功')
             this.getCaseList()
+            this.updateCaseDialogVisible = false
           } else {
             this.$notify.error({
               title: '错误',

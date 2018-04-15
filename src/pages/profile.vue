@@ -173,7 +173,7 @@ export default {
               this.modifyPicUrlDialogVisible = false
 
               // this.$root.Bus.$emit('updatedPic', this.image)
-              location.reload()
+              location.reload() // 由于header组件中的头像无法刷新，只能手动刷新整个页面
             }
           } else if (response.status === 'inputFail') {
             this.$notify.error({
@@ -209,7 +209,6 @@ export default {
     handleAvatarSuccess (res, file) {
       this.image = res.webURL
       this.$message.success('新头像已成功上传至服务器~')
-      // console.log(res.webURL)
       this.invokeApiUpdate(3, {pictureUrl: this.imageUrl}, '头像') // 头像已上传至服务器，本函数用于将头像的webURL写入数据库
     },
     beforeAvatarUpload (file) {

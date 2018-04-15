@@ -86,6 +86,9 @@ export default {
     this.$root.Bus.$on('updatedName', value => {
       this.name = value
     })
+    this.$root.Bus.$on('updateIndex', value => {
+      this.activeIndex = value
+    })
   },
   methods: {
     logout () {

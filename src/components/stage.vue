@@ -23,10 +23,14 @@
         list-type="picture-card"
         :file-list="picList"
         :before-upload="beforePicUpload"
+        :on-preview="handlePictureCardPreview"
         :on-success="handlePicSuccess"
         :on-remove="handlePicRemove">
         <i class="el-icon-plus"></i>
       </el-upload>
+      <el-dialog :visible.sync="dialogVisible">
+        <img width="100%" :src="dialogImageUrl" alt="">
+      </el-dialog>
     </el-row>
     <el-row>
       <h3>视频列表</h3>
@@ -61,6 +65,8 @@ export default {
       infoInputVisible: false,
       // picture
       picList: [],
+      dialogImageUrl: '',
+      dialogVisible: false,
       // video
       videoList: []
     }
@@ -191,7 +197,6 @@ export default {
       return isImage && isLt4M
     },
     handlePicRemove (file, fileList) {
-      console.log('handleRemove', file, fileList)
       this.$api.post(
         '/case/picture/delete',
         { // id
@@ -211,7 +216,6 @@ export default {
     },
     handlePicProgress (event, file, fileList) { // 文件上传时的钩子
       this.loading = true
-      // console.log(event) // 进度条显示
     },
     handlePicSuccess (res, file, fileList) {
       this.$message.success('图片已成功上传至服务器，其URL正在写入数据库，请稍等~')
@@ -234,6 +238,10 @@ export default {
           this.loading = false
         }
       )
+    },
+    handlePictureCardPreview (file) { // 图片放大预览
+      this.dialogImageUrl = file.url
+      this.dialogVisible = true
     },
 
     // video

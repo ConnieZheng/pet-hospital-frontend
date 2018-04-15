@@ -17,7 +17,7 @@
       </el-col>
     </el-row>
 
-    <el-table stripe :data="filteredQuestionList.slice((currentPage-1)*pageSize,currentPage*pageSize)" @filter-change="categoryFilterChange">
+    <el-table style="flex: inherit" stripe :data="filteredQuestionList.slice((currentPage-1)*pageSize,currentPage*pageSize)" @filter-change="categoryFilterChange">
       <el-table-column type="expand">
         <template slot-scope="props">
           <el-form label-position="left" inline class="demo-table-expand">
@@ -46,7 +46,7 @@
           <span>{{showStem(props.row.stem)}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="category" label="试题类别" :filters="categoryList" :filter-multiple="false" filter-placement="bottom-start" :filter-method="categoryFilterHandler" column-key="category" width="250px">
+      <el-table-column prop="category" label="试题类别" :filters="categoryList" :filter-multiple="false" filter-placement="bottom" :filter-method="categoryFilterHandler" column-key="category" width="250px">
       </el-table-column>
       <el-table-column prop="answer" label="正确选项" width="100px" />
       <el-table-column label="操作" fixed="right" width="350px">
@@ -170,11 +170,13 @@
       title="上传试题文件"
       :visible.sync="uploadQuestionDialogVisible"
       width="30%">
-      <a href="http://111.231.62.36:8080/pet/img/371465a9-2997-426f-967e-355414c759f0question_title.txt" target="_blank">试题文件样例1（含标题行）</a>
+      <a target="_blank" :href="exampleFileWithTitle">
+        试题文件样例1（含标题行）
+      </a>
       <br>
-      <a href="http://111.231.62.36:8080/pet/img/499a28e9-9022-470f-bd47-8d51e38f0c18questions_no_title.txt" target="_blank">试题文件样例2（无标题行）</a>
+      <a :href="exampleFileWithoutTitle" target="_blank">试题文件样例2（无标题行）</a>
       <el-upload accept=".txt"
-        action="/api/question/file"
+        :action="uploadQuestionUrl"
         :before-upload="beforeUploadFileUpload"
         :on-progress="handleUploadFileProgress"
         :on-success="handleUploadFileSuccess"
@@ -231,12 +233,16 @@ export default {
           { required: true, message: '请输入正确答案', trigger: 'change' }
         ]
       },
-      uploadQuestionDialogVisible: false
+      uploadQuestionDialogVisible: false,
+      exampleFileWithTitle: this.$fileApi.getWebBaseUrl() + 'img/questionTitle.txt',
+      exampleFileWithoutTitle: this.$fileApi.getWebBaseUrl() + 'img/questionNoTitle.txt',
+      uploadQuestionUrl: this.$api.getRootUrl() + '/question/file'
     }
   },
   created () {
     this.getQuestionList()
     this.getCategoryList()
+    this.$root.Bus.$emit('updateIndex', '/question')
   },
   computed: {
     filteredQuestionList () {
@@ -278,7 +284,6 @@ export default {
         }
       }
 
-      // console.log(param)
       this.$api.post(
         '/question/filter',
         param,
@@ -332,7 +337,6 @@ export default {
       this.currentPage = currentPage
     },
     categoryFilterHandler (value, row, column) {
-      // console.log('xxx' + value)
       const property = column['property'] // property就是prop属性
       return row[property] === value
     },
@@ -448,7 +452,6 @@ export default {
       this.loading = true
     },
     handleUploadFileSuccess (res, file, fileList) {
-      console.log('success', res)
       if (res.status === 'success') {
         this.$message.success('文件已上传至服务器，重新获取试题列表中...')
         this.getQuestionList()

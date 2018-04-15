@@ -33,14 +33,15 @@
         </el-form>
       </el-col>
 
-   </el-row>
+    </el-row>
 
-    <el-table stripe :data="filteredUserList.slice((currentPage-1)*pageSize,currentPage*pageSize)" @filter-change="authFilterChange">
+    <!-- el-table 在IE中无法显示，因为IE对flex布局支持不好 -->
+    <el-table style="flex: inherit" stripe :data="filteredUserList.slice((currentPage-1)*pageSize,currentPage*pageSize)" @filter-change="authFilterChange">
       <el-table-column prop="id" label="ID">
       </el-table-column>
       <el-table-column prop="userName" label="用户名">
       </el-table-column>
-      <el-table-column prop="auth" label="权限" :formatter="authFormatter" :filters="[{text: 'User', value: 1}, {text: 'Admin', value: 2}, {text: 'Superadmin', value: 3}]" :filter-multiple="false" filter-placement="bottom-start" :filter-method="authFilterHandler" column-key="auth">
+      <el-table-column prop="auth" label="权限" :formatter="authFormatter" :filters="[{text: 'User', value: 1}, {text: 'Admin', value: 2}, {text: 'Superadmin', value: 3}]" :filter-multiple="false" filter-placement="bottom" :filter-method="authFilterHandler" column-key="auth">
         <template slot-scope="scope">
           <el-tag :type="scope.row.auth === 1 ? 'primary' : (scope.row.auth === 2 ? 'success' : 'warning')" close-transition>{{showAuth(scope.row.auth)}}</el-tag>
         </template>
@@ -194,18 +195,14 @@ export default {
     this.getAuth()
     this.getUserList()
     this.userAuthOptions = this.getUserAuthOptions()
+    this.$root.Bus.$emit('updateIndex', '/user')
   },
   computed: {
     filteredUserList: function () {
-      // console.log('use.vue-filteredUsers:' + typeof this.authFilter)
-      // console.log('this.authFilter' + this.authFilter)
       if (this.authFilter === 0) {
         return this.userList
       }
       return this.userList.filter(function (user) {
-        // console.log(typeof user.auth)
-        // console.log('user.auth' + user.auth)
-        // return user.auth.indexOf(this.authFilter) !== -1
         return user.auth === this.authFilter
       }.bind(this))
     }
@@ -247,7 +244,6 @@ export default {
     },
     isOperationDisabled (operationName, operationUserAuth) {
       // 当disabled = false, 也就是button可点击
-      // console.log('auth=' + this.auth + ' ua=' + userAuth + 'operationName=' + operationName)
       if (this.auth === 2) { // normal admin
         if (operationUserAuth !== 1) return true
         else if (operationName === 'modifyUserAuth') return true
@@ -256,7 +252,6 @@ export default {
       }
     },
     getUserAuthOptions () {
-      // console.log('getUserAuthOptions')
       if (this.auth === 3) { // super admin
         return [
           {value: 1, label: 'User'},
@@ -268,7 +263,6 @@ export default {
       }
     },
     resetOperationUser () {
-      // console.log('resetOperationUser')
       this.operatingUser.id = 0
       this.operatingUser.userName = ''
       this.operatingUser.auth = 1
@@ -277,7 +271,6 @@ export default {
       this.operatingUser.newPwd = ''
     },
     addUser () {
-      // console.log('addUser')
       this.$refs['addUserForm'].validate((valid) => {
         if (valid) {
           var pwd = this.getMD5(this.operatingUser.pwd)
@@ -337,11 +330,13 @@ export default {
         },
         response => { // status
           if (response.status === 'success') {
-            this.getUserList()
             this.$notify.success({
               title: '成功',
               message: '原用户ID为' + this.operatingUser.id + '已被删除'
             })
+            this.getUserList()
+            this.resetOperationUser()
+            this.removeUserDialogVisible = false
           } else {
             this.$notify.error({
               title: '错误',
@@ -350,14 +345,11 @@ export default {
           }
         }
       )
-      this.resetOperationUser()
-      this.removeUserDialogVisible = false
     },
     getMD5 (key) {
       var md5 = this.$crypto.createHash('md5')
       md5.update(key)
       var a = md5.digest('hex')
-      // console.log('md5 ' + a)
       // 'foo' = 47bce5c74f589f4867dbd57e9ca9f808
       return a
     },
@@ -439,11 +431,9 @@ export default {
     },
     handleSizeChange: function (size) {
       this.pageSize = size
-      // console.log('每页' + size + '条')
     },
     handleCurrentChange: function (currentPage) {
       this.currentPage = currentPage
-      // console.log('当前为' + currentPage)
     },
     authFormatter (row) {
       return this.showAuth(row.auth)
@@ -460,7 +450,6 @@ export default {
     authFilterChange (columnKey) {
       if (columnKey.auth.length === 0) this.authFilter = 0
       else this.authFilter = columnKey.auth[0]
-      // console.log(this.authFilter)
     },
     handleClose (done) {
       this.$refs['addUserForm'].resetFields()

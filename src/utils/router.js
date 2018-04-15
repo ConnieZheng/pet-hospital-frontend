@@ -11,7 +11,7 @@ import Procedure from '@/pages/procedure'
 import Case from '@/pages/case'
 import Disease from '@/pages/disease'
 import Profile from '@/pages/profile'
-// import Test from '@/pages/test'
+import Test from '@/pages/test'
 import NotFound from '@/components/error'
 Vue.use(Router)
 
@@ -65,9 +65,9 @@ export default new Router({
       path: '/login',
       // name: 'Login',
       component: Login
-    // }, {
-    //   path: '/test',
-    //   component: Test
+    }, {
+      path: '/test',
+      component: Test
     }, {
       path: '*',
       component: NotFound

@@ -2,8 +2,8 @@
   <el-row>
     <el-breadcrumb separator="/" style="margin-bottom: 20px">
       <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <!-- TODO: index=6时，病例管理点击无反应 -->
-      <el-breadcrumb-item>{{showPageName(index)}}</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="index <= 5">{{showPageName(index)}}</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="index === 6" :to="{ path: '/case' }">病例管理</el-breadcrumb-item>
       <el-breadcrumb-item v-if="index === 6">病种管理</el-breadcrumb-item>
     </el-breadcrumb>
   </el-row>

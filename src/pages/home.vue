@@ -7,9 +7,9 @@
           <div slot="header">
             <i class="fa fa-users fa-lg"/>
             <span class="hidden-md-and-down">&nbsp;用户管理</span>
-            <!-- <el-button style="float: right; padding: 3px 0" type="text">
+            <el-button style="float: right; padding: 3px 0" type="text">
               <router-link to="/user">进入</router-link>
-            </el-button> -->
+            </el-button>
           </div>
           <div>
             限制：管理员Admin只允许对User类用户的修改密码、删除用户操作
@@ -21,6 +21,9 @@
           <div slot="header">
             <i class="fa fa-book fa-lg"/>
             <span class="hidden-md-and-down">&nbsp;试题管理</span>
+            <el-button style="float: right; padding: 3px 0" type="text">
+              <router-link to="/question">进入</router-link>
+            </el-button>
           </div>
           <div>
             特点：支持通过文件批量上传试题
@@ -32,6 +35,9 @@
           <div slot="header">
             <i class="fa fa-list-ol fa-lg"/>
             <span class="hidden-md-and-down">&nbsp;流程管理</span>
+            <el-button style="float: right; padding: 3px 0" type="text">
+              <router-link to="/procedure">进入</router-link>
+            </el-button>
           </div>
           <div>
             特点：支持手动插入步骤，快速上下移动步骤
@@ -46,8 +52,12 @@
           <div slot="header">
             <i class="fa fa-hospital-o fa-lg"/>
             <span class="hidden-md-and-down">&nbsp;科室管理</span>
+            <el-button style="float: right; padding: 3px 0" type="text">
+              <router-link to="/department">进入</router-link>
+            </el-button>
           </div>
           <div>
+            功能：对科室名、科室所属角色、科室描述、科室照片的增删改查
           </div>
         </el-card>
       </el-col>
@@ -56,6 +66,9 @@
           <div slot="header">
             <i class="fa fa-video-camera fa-lg"/>
             <span class="hidden-md-and-down">&nbsp;病例管理</span>
+            <el-button style="float: right; padding: 3px 0" type="text">
+              <router-link to="/case">进入</router-link>
+            </el-button>
           </div>
           <div>
             特点：分4阶段，快速增删相关图片和视频列表
@@ -66,6 +79,14 @@
 
   </el-container>
 </template>
+
+<script>
+export default {
+  created () {
+    this.$root.Bus.$emit('updateIndex', '/')
+  }
+}
+</script>
 
 <style scoped>
 .bg {
