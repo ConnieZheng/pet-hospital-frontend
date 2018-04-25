@@ -373,6 +373,7 @@ export default {
                 this.resetOperationUser()
                 this.modifyPwdDialogVisible = false
               } else {
+                console.log(response.exception)
                 this.$notify.error({
                   title: '错误',
                   message: '重置用户密码失败，请等待后重试'

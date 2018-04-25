@@ -225,6 +225,7 @@ export default {
             this.getDiseaseList()
             this.getCategoryList() // 防止增加了新的类别
             this.$message.success('修改病种成功~')
+            this.updateDiseaseDialogVisible = false
           } else {
             this.$notify.error({
               title: '错误',

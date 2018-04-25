@@ -1,4 +1,5 @@
 // 配置API接口地址
+// var root = 'http://111.231.62.36:8081/api'
 var root = '/api'
 // 引用axios
 var axios = require('axios')
@@ -34,15 +35,7 @@ function filterNull (o) {
   }
   return o
 }
-/*
-  接口处理函数
-  这个函数每个项目都是不一样的，我现在调整的是适用于
-  https://cnodejs.org/api/v1 的接口，如果是其他接口
-  需要根据接口的参数进行调整。参考说明文档地址：
-  https://cnodejs.org/topic/5378720ed6e2d16149fa16bd
-  主要是，不同的接口的成功标识和失败提示是不一致的。
-  另外，不同的项目的处理方法也是不一致的，这里出错就是简单的alert
-*/
+
 function apiAxios (method, url, params, success) {
   if (params) {
     params = filterNull(params)
@@ -54,6 +47,9 @@ function apiAxios (method, url, params, success) {
     params: method === 'GET' || method === 'DELETE' ? params : null,
     baseURL: root,
     withCredentials: false
+  },
+  {
+    'Access-Control-Allow-Origin': '*'
   })
     .then(function (res) {
       if (url !== '/user/login') {

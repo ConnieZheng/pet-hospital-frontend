@@ -1,5 +1,5 @@
 <template>
-  <el-container direction="vertical" style="padding: 20px 50px">
+  <el-container direction="vertical" style="padding: 20px 50px" v-loading="loading">
     <my-breadcrumb v-bind:index=3></my-breadcrumb>
 
     <!-- domainContainer -->
@@ -216,6 +216,7 @@ export default {
       operatingDomain: {}, // addDomain / showDomainDetail
       updatingDomain: {}, // updateDomain
       domainList: [],
+      loading: false,
       roleOptions: [
         {id: 1, label: '前台'},
         {id: 2, label: '医助'},
@@ -261,7 +262,7 @@ export default {
         this.resetOperatingDomain()
       } else {
         this.domainContainerVisible = false // 前进到step
-        this.domainList = {}
+        this.stepList = []
       }
       this.currentPage = 1
       this.pageSize = 5
@@ -278,12 +279,14 @@ export default {
       //   {roleId: 3, domain: 'd3'},
       //   {roleId: 2, domain: 'd4'}
       // ]
+      this.loading = true
       this.$api.post(
         '/procedure/all',
         null,
         response => { // status, procedureList[roleId, domain]
           if (response.status === 'success') {
             this.domainList = response.procedureList
+            this.loading = false
           } else {
             this.$notify.error({
               title: '错误',
